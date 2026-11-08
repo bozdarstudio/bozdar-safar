@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bozdar Safar — Agent Link</title>
+<style>
+  :root{
+    --green:#0B6B4F; --deep:#0B3D2E; --gold:#D4A017; --gold-light:#F2C94C;
+    --cream:#FFF8E7; --ink:#14231C;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:linear-gradient(160deg,var(--deep),var(--green));
+    color:var(--ink); min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:18px;
+  }
+  .card{
+    background:var(--cream); border-radius:20px; max-width:430px; width:100%;
+    padding:28px 22px 24px; text-align:center;
+    box-shadow:0 18px 50px rgba(0,0,0,.35);
+    border-top:6px solid var(--gold);
+  }
+  .brand{font-size:15px; letter-spacing:2px; color:var(--green); font-weight:800}
+  h1{margin:6px 0 4px; font-size:30px; color:var(--deep)}
+  .tag{margin:0 0 18px; color:#555; font-size:14.5px}
+  .codebox{
+    background:#fff; border:2px dashed var(--gold); border-radius:14px;
+    padding:14px 10px; margin:0 0 8px;
+  }
+  .codebox .lbl{font-size:12.5px; color:#777; letter-spacing:1px}
+  .codebox .code{font-size:34px; font-weight:900; color:var(--deep); letter-spacing:3px}
+  .note{font-size:13.5px; color:#555; line-height:1.55; margin:10px 0 20px}
+  .btn{
+    display:block; width:100%; padding:15px 12px; border-radius:12px; border:0;
+    font-size:17px; font-weight:800; text-decoration:none; cursor:pointer; margin:0 0 12px;
+  }
+  .btn-download{background:var(--green); color:#fff}
+  .btn-register{background:var(--gold); color:var(--deep)}
+  .btn:active{transform:scale(.98)}
+  .steps{text-align:left; font-size:14px; line-height:1.7; color:#333; margin:16px 0 0; padding:0 4px}
+  .steps b{color:var(--deep)}
+  .missing{
+    display:none; background:#FDECEA; color:#B3261E; border-radius:10px;
+    padding:10px; font-size:13.5px; margin:0 0 14px; line-height:1.5;
+  }
+  footer{margin-top:18px; font-size:12px; color:#888}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">BOZDAR&nbsp;SAFAR</div>
+    <h1>Driver Registration</h1>
+    <p class="tag">Aap ko ek agent ne Bozdar Safar mein driver banne ki dawat di hai.</p>
+
+    <div class="missing" id="nocode">
+      Is link mein agent code nahi mila. Apne agent se sahi link dobara mangayein —
+      baghair code ke registration par refer nahi lage ga.
+    </div>
+
+    <div class="codebox">
+      <div class="lbl">AAP KA AGENT CODE</div>
+      <div class="code" id="code">—</div>
+    </div>
+    <p class="note">
+      Registration ke waqt ye code khud bhara milega — bas check karke aage barhein.
+      Code sirf <b>pehli registration</b> par lagta hai.
+    </p>
+
+    <a class="btn btn-download" id="download"
+       href="https://github.com/bozdarstudio/bozdar-safar/releases/download/v1.0.0/BozdarSafar-v1.0.0.apk">
+      ⬇️ 1. Safar App Download Karein
+    </a>
+    <a class="btn btn-register" id="register" href="#">
+      🚖 2. App Kholein — Register Karein
+    </a>
+
+    <div class="steps">
+      <b>Tareeqa:</b><br>
+      1. Pehle upar wale button se <b>Safar app download</b> karke install karein.<br>
+      2. Phir doosra button dabayein — app khulegi aur agent code khud bhara milega.<br>
+      3. Registration ke qadam mukammal karein (CNIC, gaari ki photos, live selfie) —
+         Master ki tasdeeq ke baad aap ki ID active ho jayegi.
+    </div>
+
+    <footer>Bozdar Safar — Pakistan ka apna safar · Madad: 0312 2635002</footer>
+  </div>
+
+<script>
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var code = (params.get('code') || '').trim().toUpperCase();
+    var codeEl = document.getElementById('code');
+    var regEl = document.getElementById('register');
+    if (code) {
+      codeEl.textContent = code;
+      regEl.href = 'bozdarsafar://register?agent=' + encodeURIComponent(code);
+    } else {
+      document.getElementById('nocode').style.display = 'block';
+      regEl.href = 'bozdarsafar://register';
+    }
+  })();
+</script>
+</body>
+</html>
