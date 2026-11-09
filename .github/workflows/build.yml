@@ -24,7 +24,7 @@ jobs:
         with:
           flutter-version: '3.24.5'
           channel: 'stable'
-          cache: true
+          cache: false
       - name: Build release APK + AAB
         env:
           KEYSTORE_PASSWORD: ${{ secrets.SAFAR_STORE_PASSWORD }}
