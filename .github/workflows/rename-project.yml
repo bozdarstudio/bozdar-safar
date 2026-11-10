@@ -1,6 +1,7 @@
 name: Rename project zip
 on:
-  workflow_dispatch:
+  push:
+    branches: [v1418-build2]
 permissions:
   contents: write
 jobs:
