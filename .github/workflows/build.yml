@@ -3,6 +3,8 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -63,3 +65,11 @@ jobs:
         with:
           name: BozdarSafar-aab
           path: build/app/outputs/bundle/release/app-release.aab
+      - name: Upload APK to release v1.0.0
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp build/app/outputs/flutter-apk/app-release.apk BozdarSafar-v1.4.31.apk
+          gh release upload v1.0.0 BozdarSafar-v1.4.31.apk
