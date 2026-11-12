@@ -1,0 +1,32 @@
+name: Rename project zip
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rename:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Rename uploaded zip to project.zip
+        run: |
+          set -e
+          git config user.email "bozdarstudio@users.noreply.github.com"
+          git config user.name "bozdarstudio"
+          if [ -f project-pd-v1436.zip ]; then
+            rm -f project.zip
+            git mv project-pd-v1436.zip project.zip
+            git rm -q .github/workflows/rename-project.yml
+            git commit -q -m "Rename project-pd-v1436.zip to project.zip - v1.4.36 [skip ci]"
+            git push -q origin main
+            echo "Renamed project-pd-v1436.zip to project.zip"
+          else
+            echo "project-pd-v1436.zip not found, nothing to rename"
+          fi
