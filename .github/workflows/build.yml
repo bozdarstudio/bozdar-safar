@@ -71,5 +71,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp build/app/outputs/flutter-apk/app-release.apk Boz.Safar-v1.4.56.apk
-          gh release upload v1.0.0 Boz.Safar-v1.4.56.apk
+          cp build/app/outputs/flutter-apk/app-release.apk Boz.Safar-v1.4.57.apk
+          gh release upload v1.0.0 Boz.Safar-v1.4.57.apk
