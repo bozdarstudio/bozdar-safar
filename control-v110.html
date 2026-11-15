@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Family Control — Boz Safar</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #F7F3E8; color: #1A1A1A;
+    padding: 16px; max-width: 540px; margin: 0 auto;
+  }
+  h1 { color: #0B3D2E; font-size: 28px; margin-bottom: 2px; }
+  .sub { color: #444; font-size: 15px; margin-bottom: 18px; }
+  .card {
+    background: #fff; border: 2px solid #C9A227; border-radius: 14px;
+    padding: 16px; margin-bottom: 14px;
+  }
+  .card h2 { color: #0B3D2E; font-size: 21px; margin-bottom: 6px; }
+  .card p { font-size: 15px; color: #333; line-height: 1.45; }
+  label.lbl { display: block; font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+  input[type="tel"] {
+    width: 100%; font-size: 30px; text-align: center; letter-spacing: 6px;
+    padding: 12px; border: 2px solid #0B3D2E; border-radius: 10px;
+    background: #fff; color: #0B3D2E; font-weight: 700;
+  }
+  button.big {
+    width: 100%; margin-top: 12px; padding: 14px; font-size: 19px; font-weight: 700;
+    color: #fff; background: #0B3D2E; border: none; border-radius: 12px; cursor: pointer;
+  }
+  button.small {
+    padding: 8px 14px; font-size: 14px; font-weight: 600;
+    color: #0B3D2E; background: #fff; border: 2px solid #0B3D2E;
+    border-radius: 10px; cursor: pointer;
+  }
+  button:disabled { opacity: .55; }
+  .err {
+    display: none; background: #FDECEA; color: #B3261E; border: 1px solid #B3261E;
+    padding: 10px 12px; border-radius: 10px; font-size: 15px; margin-top: 12px;
+  }
+  .ok {
+    display: none; background: #E6F4EA; color: #1B7A43; border: 1px solid #1B7A43;
+    padding: 10px 12px; border-radius: 10px; font-size: 15px; margin-top: 12px;
+  }
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 13px 2px; border-bottom: 1px solid #E7DFC8;
+  }
+  .row:last-child { border-bottom: none; }
+  .row .nm { font-size: 18px; font-weight: 700; }
+  .row .st { font-size: 14px; margin-top: 2px; }
+  .st.on { color: #1B7A43; } .st.off { color: #B3261E; }
+  /* bara switch */
+  .sw { position: relative; width: 64px; height: 36px; flex: 0 0 auto; }
+  .sw input { opacity: 0; width: 0; height: 0; }
+  .track {
+    position: absolute; inset: 0; border-radius: 36px; cursor: pointer;
+    background: #B3261E; transition: .2s;
+  }
+  .track:before {
+    content: ""; position: absolute; width: 28px; height: 28px; border-radius: 50%;
+    left: 4px; top: 4px; background: #fff; transition: .2s;
+  }
+  .sw input:checked + .track { background: #1B7A43; }
+  .sw input:checked + .track:before { transform: translateX(28px); }
+  .sw input:disabled + .track { opacity: .5; }
+  .safe { border-color: #0B3D2E; border-width: 3px; }
+  .safe .track { }
+  .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .codechip { font-weight: 700; color: #0B3D2E; font-size: 16px; }
+  .note { font-size: 13.5px; color: #555; line-height: 1.5; margin-top: 6px; }
+  .hidden { display: none !important; }
+
+  /* v1.1.0: icons (presentation only) */
+  .ico { width: 24px; height: 24px; vertical-align: -5px; }
+  h1 .ico { width: 30px; height: 30px; }
+  #appList .row > div:first-child {
+    padding-left: 44px; min-height: 34px;
+    background-repeat: no-repeat; background-position: left center; background-size: 33px 33px;
+  }
+  #appList .row:nth-child(1) > div:first-child { background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Crect%20x%3D%272%27%20y%3D%275%27%20width%3D%2720%27%20height%3D%2714%27%20rx%3D%274%27%20fill%3D%27%23FF0000%27%2F%3E%3Cpath%20d%3D%27M10%209.5v5l5-2.5z%27%20fill%3D%27%23ffffff%27%2F%3E%3C%2Fsvg%3E"); }
+  #appList .row:nth-child(2) > div:first-child { background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2712%27%20r%3D%2710%27%20fill%3D%27%23111111%27%2F%3E%3Cpath%20d%3D%27M12%203v10.55c-.59-.34-1.27-.55-2-.55-2.21%200-4%201.79-4%204s1.79%204%204%204%204-1.79%204-4V7h4V3h-6z%27%20fill%3D%27%23ffffff%27%2F%3E%3C%2Fsvg%3E"); }
+  #appList .row:nth-child(3) > div:first-child { background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2712%27%20r%3D%2710%27%20fill%3D%27%231877F2%27%2F%3E%3Ctext%20x%3D%2712.5%27%20y%3D%2719.5%27%20font-family%3D%27Arial%2C%20sans-serif%27%20font-size%3D%2717%27%20font-weight%3D%27bold%27%20fill%3D%27%23ffffff%27%20text-anchor%3D%27middle%27%3Ef%3C%2Ftext%3E%3C%2Fsvg%3E"); }
+  #appList .row:nth-child(4) > div:first-child { background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Crect%20x%3D%273%27%20y%3D%273%27%20width%3D%2718%27%20height%3D%2718%27%20rx%3D%275%27%20fill%3D%27none%27%20stroke%3D%27%23E1306C%27%20stroke-width%3D%272%27%2F%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2712%27%20r%3D%274.2%27%20fill%3D%27none%27%20stroke%3D%27%23E1306C%27%20stroke-width%3D%272%27%2F%3E%3Ccircle%20cx%3D%2717.3%27%20cy%3D%276.7%27%20r%3D%271.5%27%20fill%3D%27%23E1306C%27%2F%3E%3C%2Fsvg%3E"); }
+  #appList .row:nth-child(5) > div:first-child { background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2712%27%20r%3D%279.5%27%20fill%3D%27none%27%20stroke%3D%27%2334A853%27%20stroke-width%3D%272.4%27%2F%3E%3Cpath%20d%3D%27M12%202.6v5M20%2016.9l-4.7-2.6M4%2016.9l4.7-2.6%27%20stroke%3D%27%23EA4335%27%20stroke-width%3D%272.4%27%2F%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2712%27%20r%3D%273.8%27%20fill%3D%27%234285F4%27%2F%3E%3C%2Fsvg%3E"); }
+  #appList .row:nth-child(6) > div:first-child { background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%2712%27%20r%3D%2710%27%20fill%3D%27%23FF0000%27%2F%3E%3Cpath%20d%3D%27M12%203v10.55c-.59-.34-1.27-.55-2-.55-2.21%200-4%201.79-4%204s1.79%204%204%204%204-1.79%204-4V7h4V3h-6z%27%20fill%3D%27%23ffffff%27%2F%3E%3C%2Fsvg%3E"); }
+</style>
+</head>
+<body>
+
+<h1><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="#0B3D2E" d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/><path fill="#C9A227" d="M10.6 15.6l-3.1-3.1 1.3-1.3 1.8 1.8 4.6-4.6 1.3 1.3z"/></svg> Family Control</h1>
+<p class="sub">Ghar wale mobile ki apps yahan se band/kholein — bachon ki hifazat ke liye.</p>
+
+<!-- ============ SCREEN 1: PAIR CODE ============ -->
+<div id="scr-code">
+  <div class="card">
+    <h2><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="#C9A227" d="M12.65 10C11.83 7.67 9.61 6 7 6c-2.76 0-5 2.24-5 5s2.24 5 5 5c2.61 0 4.83-1.67 5.65-4H17v4h4v-4H12.65zM7 14c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg> Pair Code Dalein</h2>
+    <p>Ghar wale mobile par <b>Family Guard</b> app kholein — wahan bara sa
+       6 number wala code likha hoga. Wohi code yahan dalein.
+       Ye sirf ek dafa karna hai; page code yaad rakh legi.</p>
+    <div style="height:12px"></div>
+    <label class="lbl" for="codeInp">Pair Code</label>
+    <input id="codeInp" type="tel" inputmode="numeric" maxlength="6"
+           placeholder="------" autocomplete="off">
+    <button class="big" id="btnConnect">Rabta Karein</button>
+    <div class="err" id="codeErr"></div>
+  </div>
+  <p class="note">Note: Jo bhi ye code janta hai woh is page se ghar wale mobile ki
+     apps band/khol sakta hai — code sirf ghar walon ko dein.</p>
+</div>
+
+<!-- ============ SCREEN 2: CONTROL PANEL ============ -->
+<div id="scr-panel" class="hidden">
+  <div class="topbar">
+    <span class="codechip">Pair Code: <span id="codeShow"></span></span>
+    <span>
+      <button class="small" id="btnRefresh">↻ Dobara Check</button>
+      <button class="small" id="btnChange">Code Badlein</button>
+    </span>
+  </div>
+
+  <div class="ok" id="panelOk"></div>
+  <div class="err" id="panelErr"></div>
+
+  <!-- SAFE MODE — sab se ahem -->
+  <div class="card safe">
+    <div class="row" style="border-bottom:none; padding-top:2px;">
+      <div>
+        <div class="nm" style="font-size:21px;"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="#0B3D2E" d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/><path fill="#C9A227" d="M10.6 15.6l-3.1-3.1 1.3-1.3 1.8 1.8 4.6-4.6 1.3 1.3z"/></svg> Safe Mode (Bachon Ke Liye)</div>
+        <div class="st" id="safeState"></div>
+      </div>
+      <label class="sw">
+        <input type="checkbox" id="swSafe">
+        <span class="track"></span>
+      </label>
+    </div>
+    <p>Safe Mode ON ho to: bara <b>YouTube band</b>, saare <b>browsers (Chrome waghera) band</b> —
+       sirf <b>YouTube Kids</b> chalega. Bekar aur gandi cheezon se bachon ki hifazat ke liye
+       ise ON hi rakhein.</p>
+  </div>
+
+  <!-- APPS LIST -->
+  <div class="card">
+    <h2>Apps</h2>
+    <p>Switch <b style="color:#1B7A43">ON = app chalegi</b> ·
+       <b style="color:#B3261E">OFF = app band</b></p>
+    <div id="appList"></div>
+  </div>
+
+  <p class="note">Tabdeeli save hote hi ghar wale mobile tak taqreeban ek minute ke
+     andar pohanch jati hai (wahan ki app har 45 second mein check karti hai —
+     mobile ka internet on hona chahiye). Agar mobile offline ho to tabdeeli
+     internet ate hi lag jayegi.</p>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+   Family Control — malik ke apne mobile se ghar wale mobile ki
+   apps band/kholne ka page. Backend: Supabase REST (fg_devices),
+   wohi pattern jo Boz Safar agent panel ka hai. Pair code hi
+   shared secret hai (guardian app dikhati hai).
+   ===================================================================== */
+const SUPABASE_URL = 'https://ndcnqotfqpgkgsngewug.supabase.co';
+const REST = SUPABASE_URL + '/rest/v1';
+const ANON_KEY = 'sb_publishable_3TWtf4zT6xJzuyb0fsMuWQ_Fjkyk3LE';
+const LS_KEY = 'fg_pair_code';
+
+/* Control hone wali apps: ek switch kai packages bhi sambhal sakta
+   hai (TikTok ke do variant ek saath). */
+const APPS = [
+  { name: 'YouTube',       pkgs: ['com.google.android.youtube'] },
+  { name: 'TikTok',        pkgs: ['com.zhiliaoapp.musically', 'com.ss.android.ugc.trill'] },
+  { name: 'Facebook',      pkgs: ['com.facebook.katana'] },
+  { name: 'Instagram',     pkgs: ['com.instagram.android'] },
+  { name: 'Chrome',        pkgs: ['com.android.chrome'] },
+  { name: 'YouTube Music', pkgs: ['com.google.android.apps.youtube.music'] }
+];
+
+let pairCode = '';
+let state = null;   // { blocked: Set, safeMode: bool }
+let busy = false;
+
+const $ = id => document.getElementById(id);
+
+function showMsg(id, msg) { const e = $(id); e.textContent = msg; e.style.display = 'block'; }
+function hideMsg(id) { $(id).style.display = 'none'; }
+
+async function api(method, path, body) {
+  const opts = {
+    method: method,
+    headers: {
+      'apikey': ANON_KEY,
+      'Authorization': 'Bearer ' + ANON_KEY,
+      'Content-Type': 'application/json'
+    }
+  };
+  if (body !== undefined) {
+    opts.headers['Prefer'] = 'return=representation';
+    opts.body = JSON.stringify(body);
+  }
+  const r = await fetch(REST + path, opts);
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const t = await r.text();
+  return t ? JSON.parse(t) : null;
+}
+
+async function fetchState(code) {
+  const rows = await api('GET',
+    '/fg_devices?pair_code=eq.' + encodeURIComponent(code) +
+    '&select=pair_code,blocked_packages,safe_mode,updated_at');
+  if (!rows || rows.length === 0) return null;
+  return {
+    blocked: new Set(rows[0].blocked_packages || []),
+    safeMode: !!rows[0].safe_mode
+  };
+}
+
+async function patchState(fields) {
+  fields.updated_at = new Date().toISOString();
+  const rows = await api('PATCH',
+    '/fg_devices?pair_code=eq.' + encodeURIComponent(pairCode), fields);
+  if (!rows || rows.length === 0) throw new Error('row nahi mili');
+  state = {
+    blocked: new Set(rows[0].blocked_packages || []),
+    safeMode: !!rows[0].safe_mode
+  };
+}
+
+/* ---------------- UI ---------------- */
+
+function showScreen(name) {
+  $('scr-code').classList.toggle('hidden', name !== 'code');
+  $('scr-panel').classList.toggle('hidden', name !== 'panel');
+  window.scrollTo(0, 0);
+}
+
+function renderPanel() {
+  $('codeShow').textContent = pairCode;
+  // Safe Mode
+  $('swSafe').checked = state.safeMode;
+  const ss = $('safeState');
+  ss.textContent = state.safeMode ? 'ON hai — hifazat lagi hui hai' : 'OFF hai — hifazat band hai';
+  ss.className = 'st ' + (state.safeMode ? 'on' : 'off');
+  // Apps
+  const list = $('appList');
+  list.innerHTML = '';
+  APPS.forEach(function (app) {
+    const allowed = app.pkgs.every(p => !state.blocked.has(p));
+    const row = document.createElement('div');
+    row.className = 'row';
+    const left = document.createElement('div');
+    const nm = document.createElement('div');
+    nm.className = 'nm'; nm.textContent = app.name;
+    const st = document.createElement('div');
+    st.className = 'st ' + (allowed ? 'on' : 'off');
+    st.textContent = allowed ? 'Chal rahi hai' : 'BAND hai';
+    left.appendChild(nm); left.appendChild(st);
+    const lab = document.createElement('label');
+    lab.className = 'sw';
+    const inp = document.createElement('input');
+    inp.type = 'checkbox';
+    inp.checked = allowed;
+    inp.disabled = busy;
+    inp.addEventListener('change', function () { toggleApp(app, inp.checked); });
+    const tr = document.createElement('span');
+    tr.className = 'track';
+    lab.appendChild(inp); lab.appendChild(tr);
+    row.appendChild(left); row.appendChild(lab);
+    list.appendChild(row);
+  });
+}
+
+async function toggleApp(app, allow) {
+  if (busy) return;
+  busy = true; hideMsg('panelOk'); hideMsg('panelErr'); renderPanel();
+  try {
+    const blocked = new Set(state.blocked);
+    app.pkgs.forEach(p => { if (allow) blocked.delete(p); else blocked.add(p); });
+    await patchState({ blocked_packages: Array.from(blocked) });
+    showMsg('panelOk', '✓ Save ho gaya — ' + app.name + (allow ? ' khul gayi.' : ' band ho gayi.'));
+  } catch (e) {
+    showMsg('panelErr', 'Save nahi hua — internet check karke dobara koshish karein.');
+  }
+  busy = false; renderPanel();
+}
+
+async function toggleSafe(on) {
+  if (busy) return;
+  busy = true; hideMsg('panelOk'); hideMsg('panelErr');
+  try {
+    await patchState({ safe_mode: on });
+    showMsg('panelOk', '✓ Save ho gaya — Safe Mode ' + (on ? 'ON ho gaya.' : 'OFF ho gaya.'));
+  } catch (e) {
+    showMsg('panelErr', 'Save nahi hua — internet check karke dobara koshish karein.');
+  }
+  busy = false; renderPanel();
+}
+
+/* ---------------- Events ---------------- */
+
+$('swSafe').addEventListener('change', function () { toggleSafe($('swSafe').checked); });
+
+$('btnConnect').addEventListener('click', async function () {
+  hideMsg('codeErr');
+  const code = $('codeInp').value.replace(/\D/g, '');
+  if (code.length !== 6) {
+    showMsg('codeErr', 'Poora 6 number wala code dalein.');
+    return;
+  }
+  $('btnConnect').disabled = true;
+  $('btnConnect').textContent = 'Check ho raha hai...';
+  try {
+    const st = await fetchState(code);
+    if (!st) {
+      showMsg('codeErr', 'Ye code nahi mila. Ghar wale mobile par Family Guard app khol kar code dobara dekhein.');
+    } else {
+      pairCode = code;
+      state = st;
+      try { localStorage.setItem(LS_KEY, code); } catch (e) {}
+      showScreen('panel');
+      renderPanel();
+    }
+  } catch (e) {
+    showMsg('codeErr', 'Rabta nahi hua — internet check karke dobara koshish karein.');
+  }
+  $('btnConnect').disabled = false;
+  $('btnConnect').textContent = 'Rabta Karein';
+});
+
+$('btnRefresh').addEventListener('click', async function () {
+  hideMsg('panelOk'); hideMsg('panelErr');
+  try {
+    const st = await fetchState(pairCode);
+    if (st) { state = st; renderPanel(); showMsg('panelOk', '✓ Taza halat aa gayi.'); }
+    else showMsg('panelErr', 'Record nahi mila.');
+  } catch (e) {
+    showMsg('panelErr', 'Rabta nahi hua — internet check karein.');
+  }
+});
+
+$('btnChange').addEventListener('click', function () {
+  try { localStorage.removeItem(LS_KEY); } catch (e) {}
+  pairCode = ''; state = null;
+  $('codeInp').value = '';
+  showScreen('code');
+});
+
+/* ---------------- Start: yaad kiya hua code ho to seedha panel ---------------- */
+(async function init() {
+  let saved = '';
+  try { saved = localStorage.getItem(LS_KEY) || ''; } catch (e) {}
+  if (saved && saved.length === 6) {
+    try {
+      const st = await fetchState(saved);
+      if (st) {
+        pairCode = saved; state = st;
+        showScreen('panel'); renderPanel();
+        return;
+      }
+    } catch (e) { /* code screen hi dikhega */ }
+  }
+  showScreen('code');
+})();
+</script>
+</body>
+</html>
