@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boz Safar — Agent Page</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+    background: #F4F1E8;
+    color: #16281D;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  header {
+    background: #0B3D24;
+    padding: 18px 16px 14px;
+    text-align: center;
+    border-bottom: 4px solid #C9A227;
+  }
+  header .logo { font-size: 34px; font-weight: 900; letter-spacing: .5px; }
+  header .logo .boz { color: #FF4655; }
+  header .logo .safar { color: #FFFFFF; }
+  header .tag { color: #F5D76E; font-size: 13.5px; font-weight: 700; margin-top: 2px; }
+  main { max-width: 540px; margin: 0 auto; padding: 16px 14px 40px; }
+  .card {
+    background: #FFFFFF;
+    border: 1.5px solid #CFC9B4;
+    border-radius: 14px;
+    padding: 18px 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(11,61,36,.08);
+  }
+  h2 { font-size: 19px; color: #0B3D24; font-weight: 900; margin-bottom: 6px; }
+  h3 { font-size: 16.5px; color: #0B3D24; font-weight: 800; margin-bottom: 6px; }
+  p.note { font-size: 14px; color: #33473B; }
+  label { display: block; font-weight: 700; font-size: 14.5px; color: #0B3D24; margin: 12px 0 5px; }
+  input {
+    width: 100%;
+    padding: 13px 12px;
+    font-size: 16.5px;
+    border: 1.8px solid #7A7260;
+    border-radius: 10px;
+    background: #FFFFFF;
+    color: #16281D;
+  }
+  input:focus { outline: 3px solid #9CC5A8; border-color: #0B5D2E; }
+  button {
+    width: 100%;
+    padding: 14px 12px;
+    font-size: 16.5px;
+    font-weight: 800;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 14px;
+  }
+  button:disabled { opacity: .55; cursor: default; }
+  .btn-main { background: #0B5D2E; color: #FFFFFF; }
+  .btn-gold { background: #C9A227; color: #241C00; }
+  .btn-line { background: #FFFFFF; color: #0B5D2E; border: 2px solid #0B5D2E; }
+  .btn-small { width: auto; padding: 9px 16px; font-size: 14.5px; margin-top: 8px; }
+  .err {
+    display: none;
+    background: #FDECEA; color: #8F1D16;
+    border: 1.5px solid #B3261E; border-radius: 10px;
+    padding: 10px 12px; font-size: 14.5px; font-weight: 700; margin-top: 12px;
+  }
+  .okmsg {
+    display: none;
+    background: #E5F3E8; color: #0E4D24;
+    border: 1.5px solid #14632F; border-radius: 10px;
+    padding: 10px 12px; font-size: 14.5px; font-weight: 700; margin-top: 12px;
+  }
+  .hintbar {
+    display: none;
+    background: #FFF6DE; color: #4A3800;
+    border: 1.5px solid #C9A227; border-radius: 10px;
+    padding: 10px 12px; font-size: 14.5px; font-weight: 700; margin-bottom: 16px;
+    text-align: center;
+  }
+  .bandbar {
+    display: none;
+    background: #FDECEA; color: #8F1D16;
+    border: 2px solid #B3261E; border-radius: 12px;
+    padding: 13px 14px; font-size: 15.5px; font-weight: 800; margin-bottom: 16px;
+    text-align: center;
+  }
+  .avatar {
+    width: 64px; height: 64px; border-radius: 50%;
+    background: #0B5D2E; color: #FFFFFF;
+    font-size: 28px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 auto;
+  }
+  .idhead { display: flex; gap: 14px; align-items: center; }
+  .idname { font-size: 21px; font-weight: 900; color: #0B3D24; }
+  .codechip {
+    display: inline-block; margin-top: 6px;
+    background: #0B3D24; color: #F5D76E;
+    font-size: 21px; font-weight: 900; letter-spacing: 1.5px;
+    padding: 5px 14px; border-radius: 8px; border: 2px solid #C9A227;
+  }
+  .kv { margin-top: 14px; border-top: 1.5px solid #E3DECB; }
+  .kv .row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #EDE9DA; font-size: 15px; }
+  .kv .k { color: #33473B; font-weight: 700; }
+  .kv .v { color: #16281D; font-weight: 800; text-align: right; word-break: break-all; }
+  .badge { display: inline-block; padding: 2px 12px; border-radius: 20px; font-size: 13.5px; font-weight: 900; }
+  .badge.active { background: #14632F; color: #FFFFFF; }
+  .badge.band { background: #B3261E; color: #FFFFFF; }
+  .linkbox {
+    border: 1.8px solid #C9A227; background: #FFFBEB;
+    border-radius: 12px; padding: 13px 13px 11px; margin-top: 12px;
+  }
+  .linkbox .lt { font-weight: 900; color: #0B3D24; font-size: 16px; }
+  .linkbox .ld { font-size: 13.5px; color: #33473B; margin-top: 2px; }
+  .linkbox .lu {
+    font-size: 13.5px; color: #0B5D2E; font-weight: 700;
+    word-break: break-all; margin-top: 7px;
+  }
+  .linkbox .btns { display: flex; gap: 8px; }
+  .linkbox .btns button { flex: 1; }
+  .stats { display: flex; gap: 12px; margin-top: 6px; }
+  .stat { flex: 1; background: #EFF6F0; border: 1.5px solid #B9D4BF; border-radius: 10px; padding: 10px; text-align: center; }
+  .stat .n { font-size: 24px; font-weight: 900; color: #0B3D24; }
+  .stat .t { font-size: 13px; font-weight: 700; color: #33473B; }
+  .drv { border-top: 1.5px solid #E3DECB; padding: 11px 0 9px; }
+  .drv:first-of-type { border-top: none; }
+  .drv .dn { font-weight: 800; font-size: 15.5px; color: #16281D; }
+  .drv .dm { font-size: 13.5px; color: #33473B; font-weight: 600; }
+  .drv .ds { font-size: 13.5px; font-weight: 700; margin-top: 2px; }
+  .st-ok { color: #14632F; } .st-bad { color: #B3261E; } .st-wait { color: #7A5B00; }
+  .center { text-align: center; }
+  .small-link { background: none; border: none; color: #0B5D2E; font-size: 14.5px; font-weight: 800; text-decoration: underline; width: auto; padding: 6px; margin-top: 8px; cursor: pointer; }
+  .hidden { display: none !important; }
+  footer { text-align: center; color: #33473B; font-size: 13px; font-weight: 600; padding: 0 16px 26px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span class="boz">Boz</span> <span class="safar">Safar</span></div>
+  <div class="tag">Agent Page — Apni ID, Apna Record</div>
+</header>
+<main>
+
+  <!-- Loading -->
+  <div id="scr-loading" class="card center">
+    <p style="font-weight:800; color:#0B3D24;">Rukayein, page khul raha hai…</p>
+  </div>
+
+  <!-- SCREEN 1: Login (mobile pehchan) -->
+  <div id="scr-login" class="hidden">
+    <div id="linkHint" class="hintbar"></div>
+    <div class="card">
+      <h2>Agent Login</h2>
+      <p class="note">Apna wohi mobile number likhein jo Master ke record mein darj hai — aap ki agent ID khul jayegi.</p>
+      <label for="inMobile">Mobile Number</label>
+      <input id="inMobile" type="tel" inputmode="numeric" placeholder="03xx xxxxxxx" autocomplete="tel">
+      <div id="errLogin" class="err"></div>
+      <button id="btnFind" class="btn-main">Meri ID Dhundein</button>
+    </div>
+    <div class="card">
+      <h3>Password se login</h3>
+      <p class="note">Agar aap pehle Gmail code se login karke apna password laga chuke hain, to seedha password se dakhil hon. Password bhool jayein to upar wale number wale raste se Gmail code mangwa lein — wohi recovery hai.</p>
+      <label for="inPwEmail">Gmail</label>
+      <input id="inPwEmail" type="email" placeholder="apna@gmail.com" autocomplete="email">
+      <label for="inPwPass">Password</label>
+      <input id="inPwPass" type="password" placeholder="Password" autocomplete="current-password">
+      <div id="errPwLogin" class="err"></div>
+      <button id="btnPwLogin" class="btn-gold">Password Se Login Karein</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Pehchan ki tasdeeq + Gmail code -->
+  <div id="scr-confirm" class="hidden">
+    <div class="card">
+      <h2>Ye aap ki ID hai?</h2>
+      <div class="idhead" style="margin-top:10px;">
+        <div class="avatar" id="cfAvatar">?</div>
+        <div>
+          <div class="idname" id="cfName">—</div>
+          <div><span class="codechip" id="cfCode">—</span></div>
+          <p class="note" id="cfCity" style="margin-top:6px;"></p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Gmail Code Se Tasdeeq</h3>
+      <p class="note">Aap ke Gmail par 6 numberon wala code jayega. Woh code likhein ge to aap ki ID khul jayegi — aur ye browser aap ko yaad rakhay ga, dobara ane par seedha apni ID par pahunchein ge.</p>
+      <label for="inEmail">Aap Ka Gmail</label>
+      <input id="inEmail" type="email" placeholder="apna@gmail.com" autocomplete="email">
+      <button id="btnSendCode" class="btn-main">Gmail Par Code Bhejein</button>
+      <div id="otpArea" class="hidden">
+        <label for="inCode">6 Numberon Wala Code</label>
+        <input id="inCode" type="text" inputmode="numeric" maxlength="6" placeholder="______" autocomplete="one-time-code">
+        <button id="btnVerify" class="btn-gold">Code Tasdeeq Karein — ID Kholein</button>
+      </div>
+      <div id="errOtp" class="err"></div>
+      <div id="okOtp" class="okmsg"></div>
+      <div class="center"><button id="btnBack" class="small-link">← Wapas — number badalna hai</button></div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Profile / ID -->
+  <div id="scr-profile" class="hidden">
+    <div id="bandBar" class="bandbar">Aap ki ID BAND hai — Master se rabta karein.</div>
+
+    <div class="card">
+      <div class="idhead">
+        <div class="avatar" id="pfAvatar">?</div>
+        <div>
+          <div class="idname" id="pfName">—</div>
+          <div><span class="codechip" id="pfCode">—</span></div>
+        </div>
+      </div>
+      <div class="kv">
+        <div class="row"><span class="k">Haalat</span><span class="v" id="pfStatus">—</span></div>
+        <div class="row"><span class="k">Sheher</span><span class="v" id="pfCity">—</span></div>
+        <div class="row"><span class="k">Mobile</span><span class="v" id="pfMobile">—</span></div>
+        <div class="row"><span class="k">Gmail</span><span class="v" id="pfEmail">—</span></div>
+      </div>
+    </div>
+
+    <div class="card" id="pwCard">
+      <h3 id="pwTitle">Apna Password Lagayein</h3>
+      <p class="note" id="pwText">Password lag jaye to agli dafa Gmail code ke baghair, sirf password se login ho jayega. Bhool jayein to Gmail code wala rasta hamesha khula hai.</p>
+      <div id="pwForm">
+        <label for="inNewPw">Naya Password (kam az kam 6 haroof)</label>
+        <input id="inNewPw" type="password" autocomplete="new-password">
+        <label for="inNewPw2">Password Dobara Likhein</label>
+        <input id="inNewPw2" type="password" autocomplete="new-password">
+        <div id="errPwSet" class="err"></div>
+        <div id="okPwSet" class="okmsg"></div>
+        <button id="btnSetPw" class="btn-main">Password Lagayein</button>
+        <div class="center"><button id="btnSkipPw" class="small-link">Abhi nahi</button></div>
+      </div>
+      <div id="pwDone" class="hidden">
+        <p class="note" style="font-weight:800; color:#14632F;">✓ Aap ka password laga hua hai.</p>
+        <button id="btnChangePw" class="btn-line btn-small">Password Badlein</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Mere Link</h3>
+      <div class="linkbox">
+        <div class="lt">1) Mera Page</div>
+        <div class="ld">Ye aap ka apna page hai — dobara login ke liye yehi link kholein. Isay mehfooz rakhein.</div>
+        <div class="lu" id="myPageUrl">—</div>
+        <div class="btns"><button class="btn-gold btn-small" data-copy="myPageUrl">Copy Karein</button></div>
+      </div>
+      <div class="linkbox">
+        <div class="lt">2) Drivers Ko Bhejne Wala Link</div>
+        <div class="ld">Jo driver aap shamil karna chahein, use YE link bhejein — app download hogi aur aap ka code khud bhara milega.</div>
+        <div class="lu" id="drvLinkUrl">—</div>
+        <div class="btns">
+          <button class="btn-gold btn-small" data-copy="drvLinkUrl">Copy Karein</button>
+          <button class="btn-main btn-small" id="btnWaShare">WhatsApp Par Bhejein</button>
+        </div>
+      </div>
+      <div id="okCopy" class="okmsg">Link copy ho gaya ✓</div>
+    </div>
+
+    <div class="card" id="driversCard">
+      <h3>Mera Record</h3>
+      <div class="stats">
+        <div class="stat"><div class="n" id="stDrivers">0</div><div class="t">Kul Drivers</div></div>
+        <div class="stat"><div class="n" id="stRides">0</div><div class="t">Kul Mukammal Rides</div></div>
+      </div>
+      <h3 style="margin-top:16px;">Mere Drivers</h3>
+      <div id="drvList"><p class="note">Load ho raha hai…</p></div>
+    </div>
+
+    <button id="btnLogout" class="btn-line">Logout — Is Browser Se Niklein</button>
+    <p class="note center" style="margin-top:10px;">Logout ke baad is browser par dobara login karna hoga.</p>
+  </div>
+
+</main>
+<footer>Boz Safar — Pakistan ka apna safar · Madad: 0332 9467211</footer>
+
+<script>
+'use strict';
+/* =====================================================================
+   Boz Safar — Agent Web Panel
+   Ye page app (P+D) ke agent access ko hubahu dohrati hai:
+   pehchan mobile se (agents table), Gmail 6-digit code (Supabase Auth
+   email OTP), link_agent RPC, phir agent ke drivers ki list.
+   Tafseel: SPEC.md
+   ===================================================================== */
+
+// --- Backend coordinates (backend.dart: Backend._base / _authBase / _key)
+const SUPABASE_URL = 'https://ndcnqotfqpgkgsngewug.supabase.co';
+const REST = SUPABASE_URL + '/rest/v1';
+const AUTH = SUPABASE_URL + '/auth/v1';
+const ANON_KEY = 'sb_publishable_3TWtf4zT6xJzuyb0fsMuWQ_Fjkyk3LE';
+
+// Agent ka recruitment link (agent_section.dart: agentLinkFor)
+function driverLinkFor(code) {
+  return 'https://bozdarstudio.github.io/bozdar-safar/agent.html?code=' + code;
+}
+// Is panel ka apna URL us agent ke code ke saath ("Mera Page")
+function myPageUrl(code) {
+  const base = (location.origin && location.origin !== 'null')
+    ? location.origin + location.pathname
+    : location.href.split('?')[0];
+  return base + '?code=' + code;
+}
+
+// --- Halat (state)
+let session = null;        // {access_token, refresh_token, expires_at, email}
+let pendingAgent = null;   // pehchana gaya agent, OTP baqi hai
+let currentAgent = null;   // login ke baad ka agent
+let urlCode = '';          // ?code= se aya code (ho to)
+let otpSent = false;
+let otpAttempts = 0;
+let otpBlocked = false;
+let cooldownLeft = 0;
+let cooldownTimer = null;
+
+// --- Chhote helpers
+const $ = id => document.getElementById(id);
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+function showErr(id, msg) { const e = $(id); e.textContent = msg; e.style.display = 'block'; }
+function hideErr(id) { $(id).style.display = 'none'; }
+function showOk(id, msg) { const e = $(id); e.textContent = msg; e.style.display = 'block'; }
+function hideOk(id) { $(id).style.display = 'none'; }
+function showScreen(name) {
+  ['scr-loading', 'scr-login', 'scr-confirm', 'scr-profile'].forEach(s => {
+    $(s).classList.toggle('hidden', s !== name);
+  });
+  window.scrollTo(0, 0);
+}
+function setBusy(btn, busy, busyText) {
+  if (!btn.dataset.label) btn.dataset.label = btn.textContent;
+  btn.disabled = busy;
+  btn.textContent = busy ? (busyText || 'Rukayein…') : btn.dataset.label;
+}
+
+// --- Normalize (AgentApi.normMobile / normCode ki hubahu copy)
+function normMobile(s) {
+  let d = String(s || '').replace(/[^0-9]/g, '');
+  if (d.startsWith('92') && d.length === 12) d = '0' + d.substring(2);
+  return d;
+}
+function normCode(s) { return String(s || '').trim().toUpperCase(); }
+
+// --- Session (localStorage) — app ke SharedPreferences session ka hum-naam
+const LS_SESSION = 'boz_agent_session';
+const LS_CODE = 'boz_agent_code';
+function saveSession(s) {
+  session = s;
+  try { localStorage.setItem(LS_SESSION, JSON.stringify(s)); } catch (e) {}
+}
+function loadSession() {
+  try {
+    const raw = localStorage.getItem(LS_SESSION);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+function clearSession() {
+  session = null;
+  currentAgent = null;
+  try {
+    localStorage.removeItem(LS_SESSION);
+    localStorage.removeItem(LS_CODE);
+  } catch (e) {}
+}
+function bearer() {
+  return (session && session.access_token) ? session.access_token : ANON_KEY;
+}
+
+// --- HTTP helpers (app ke _get / _authPost / _rpc wali shakal)
+async function restGet(path) {
+  const r = await fetch(REST + path, {
+    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + bearer() }
+  });
+  if (!r.ok) throw new Error('rest ' + r.status);
+  return r.json();
+}
+async function authPost(path, body, bearerOverride) {
+  const r = await fetch(AUTH + path, {
+    method: 'POST',
+    headers: {
+      'apikey': ANON_KEY,
+      'Authorization': 'Bearer ' + (bearerOverride || ANON_KEY),
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  let j = null;
+  try { j = await r.json(); } catch (e) {}
+  return { ok: r.ok, status: r.status, json: j };
+}
+async function rpc(name, args) {
+  const r = await fetch(REST + '/rpc/' + name, {
+    method: 'POST',
+    headers: {
+      'apikey': ANON_KEY,
+      'Authorization': 'Bearer ' + bearer(),
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(args)
+  });
+  if (!r.ok) throw new Error('rpc ' + r.status);
+  try { return await r.json(); } catch (e) { return null; }
+}
+
+// --- Session refresh (app: muddat 60s se kam baqi ho to refresh)
+async function refreshSession() {
+  if (!session || !session.refresh_token) return false;
+  const res = await authPost('/token?grant_type=refresh_token', {
+    refresh_token: session.refresh_token
+  });
+  if (!res.ok || !res.json || !res.json.access_token) return false;
+  saveSession({
+    access_token: res.json.access_token,
+    refresh_token: res.json.refresh_token || session.refresh_token,
+    expires_at: Date.now() + (res.json.expires_in || 3600) * 1000,
+    email: session.email
+  });
+  return true;
+}
+async function ensureSession() {
+  if (!session) return false;
+  if (Date.now() > session.expires_at - 60000) return refreshSession();
+  return true;
+}
+function storeSessionFromAuth(j, email) {
+  saveSession({
+    access_token: j.access_token,
+    refresh_token: j.refresh_token || '',
+    expires_at: Date.now() + (j.expires_in || 3600) * 1000,
+    email: email
+  });
+}
+
+// --- Agents parhna (AgentApi)
+function agentFromRow(r) {
+  return {
+    id: String(r.id || ''),
+    name: String(r.name || ''),
+    mobile: String(r.mobile || ''),
+    city: String(r.city || ''),
+    code: String(r.code || ''),
+    active: r.active === true,
+    archived: r.archived === true,
+    email: String(r.email || '').trim().toLowerCase()
+  };
+}
+async function fetchAgents() {
+  const data = await restGet('/agents?select=*&order=created_at.desc');
+  if (!Array.isArray(data)) return [];
+  return data.filter(r => r && String(r.id || '').length > 0).map(agentFromRow);
+}
+async function fetchAgentByCode(code) {
+  const c = normCode(code);
+  if (!c) return null;
+  const data = await restGet('/agents?select=*&code=eq.' + encodeURIComponent(c));
+  if (!Array.isArray(data) || !data.length) return null;
+  return agentFromRow(data[0]);
+}
+// Ek hi number par kai purani rows hon to zinda ID ko tarjeeh:
+// active > band > archived.
+function pickAgent(matches) {
+  if (!matches.length) return null;
+  return matches.find(a => a.active && !a.archived)
+      || matches.find(a => !a.archived)
+      || matches[0];
+}
+async function findAgentByMobile(mobile) {
+  const m = normMobile(mobile);
+  if (m.length < 10) return null;
+  const all = await fetchAgents();
+  return pickAgent(all.filter(a => normMobile(a.mobile) === m));
+}
+async function findAgentByEmail(email) {
+  const e = String(email || '').trim().toLowerCase();
+  if (!e) return null;
+  const all = await fetchAgents();
+  return pickAgent(all.filter(a => a.email === e));
+}
+
+// --- link_agent RPC (Backend.linkAgentIdentity) — session lazmi
+async function linkAgent(agentId) {
+  if (!agentId || !session) return false;
+  try {
+    const r = await rpc('link_agent', { p_agent_id: agentId });
+    return r === true;
+  } catch (e) { return false; }
+}
+
+// --- Gmail OTP (Backend.sendEmailOtp / verifyEmailOtp)
+async function sendEmailOtp(email) {
+  const res = await authPost('/otp', { email: email, create_user: true });
+  return res.ok;
+}
+async function verifyEmailOtp(email, code) {
+  const res = await authPost('/verify', { email: email, token: code, type: 'email' });
+  if (!res.ok || !res.json || !res.json.access_token) return false;
+  storeSessionFromAuth(res.json, email);
+  return true;
+}
+
+// --- Password (Backend.signInWithPassword / updateAuthPassword)
+async function signInWithPassword(email, password) {
+  const res = await authPost('/token?grant_type=password', {
+    email: email, password: password
+  });
+  if (!res.ok || !res.json || !res.json.access_token) return false;
+  storeSessionFromAuth(res.json, email);
+  return true;
+}
+async function updateAuthPassword(newPassword) {
+  if (!session || !session.access_token) return false;
+  await ensureSession();
+  const r = await fetch(AUTH + '/user', {
+    method: 'PUT',
+    headers: {
+      'apikey': ANON_KEY,
+      'Authorization': 'Bearer ' + session.access_token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ password: newPassword })
+  });
+  return r.ok;
+}
+
+// --- Drivers (AgentApi.fetchAgentDrivers) — paisa NAHI dikhta (v1.4.40 usool)
+function docLabel(s) {
+  if (s === 'verified') return '<span class="st-ok">Tasdeeq ho gayi</span>';
+  if (s === 'rejected') return '<span class="st-bad">Reject ho gayi</span>';
+  return '<span class="st-wait">Intizaar hai</span>';
+}
+async function fetchAgentDrivers(code) {
+  const c = normCode(code);
+  if (!c) return [];
+  const rows = await restGet('/drivers?select=id,name,vehicle,vehicle_brand,vehicle_model,plate,active,cnic_status,gaari_status,licence_status&agent_code=eq.' + encodeURIComponent(c) + '&order=name.asc');
+  if (!Array.isArray(rows) || !rows.length) return [];
+  const ids = rows.map(r => String(r.id || '')).filter(x => x.length > 0);
+  const counts = {};
+  if (ids.length) {
+    try {
+      const rides = await restGet('/rides?select=driver_id,fare,waiting_charges,fee&status=eq.completed&driver_id=in.(' + ids.join(',') + ')&limit=10000');
+      if (Array.isArray(rides)) {
+        rides.forEach(r => {
+          const did = String(r.driver_id || '');
+          if (did) counts[did] = (counts[did] || 0) + 1;
+        });
+      }
+    } catch (e) { /* rides na milein to ginti 0 — list phir bhi dikhegi */ }
+  }
+  return rows.map(r => ({
+    id: String(r.id || ''),
+    name: String(r.name || ''),
+    vehicle: [r.vehicle, r.vehicle_brand, r.vehicle_model]
+      .map(x => String(x || '').trim()).filter(x => x.length > 0).join(' · '),
+    plate: String(r.plate || ''),
+    active: r.active === true,
+    cnicStatus: String(r.cnic_status || ''),
+    gaariStatus: String(r.gaari_status || ''),
+    licenceStatus: String(r.licence_status || ''),
+    rides: counts[String(r.id || '')] || 0
+  }));
+}
+</script>
+
+<script>
+'use strict';
+/* ================= UI flow ================= */
+
+// --- Screen 1: mobile se pehchan
+$('btnFind').addEventListener('click', async () => {
+  hideErr('errLogin');
+  const mobile = $('inMobile').value;
+  if (normMobile(mobile).length < 10) {
+    showErr('errLogin', 'Sahi mobile number likhein — wohi jo Master ke record mein darj hai.');
+    return;
+  }
+  const btn = $('btnFind');
+  setBusy(btn, true);
+  try {
+    const a = await findAgentByMobile(mobile);
+    setBusy(btn, false);
+    if (!a) {
+      showErr('errLogin', 'Is number par koi agent ID nahi mili — number dobara check karein, ya Master se rabta karein.');
+      return;
+    }
+    if (a.archived) {
+      showErr('errLogin', 'Ye ID mojood nahi hai — Master se rabta karein.');
+      return;
+    }
+    if (urlCode && normCode(urlCode) !== normCode(a.code)) {
+      showErr('errLogin', 'Ye link kisi aur agent ka hai — apna wala link istemal karein jo Master ne aap ko bheja tha.');
+      return;
+    }
+    pendingAgent = a;
+    $('cfAvatar').textContent = a.name ? a.name.charAt(0).toUpperCase() : '?';
+    $('cfName').textContent = a.name || '—';
+    $('cfCode').textContent = a.code;
+    $('cfCity').textContent = a.city ? ('Sheher: ' + a.city) : '';
+    $('inEmail').value = a.email || '';
+    otpSent = false; otpAttempts = 0; otpBlocked = false;
+    $('otpArea').classList.add('hidden');
+    $('inCode').value = '';
+    hideErr('errOtp'); hideOk('okOtp');
+    showScreen('scr-confirm');
+  } catch (e) {
+    setBusy(btn, false);
+    showErr('errLogin', 'Server se rabta nahi ho saka — internet check karke dobara koshish karein.');
+  }
+});
+
+// --- Screen 2: Gmail code
+function startCooldown() {
+  clearInterval(cooldownTimer);
+  cooldownLeft = 60;
+  const btn = $('btnSendCode');
+  btn.disabled = true;
+  btn.textContent = 'Dobara code: ' + cooldownLeft + 's';
+  cooldownTimer = setInterval(() => {
+    cooldownLeft -= 1;
+    if (cooldownLeft <= 0) {
+      clearInterval(cooldownTimer);
+      btn.disabled = false;
+      btn.textContent = 'Dobara Code Bhejein';
+    } else {
+      btn.textContent = 'Dobara code: ' + cooldownLeft + 's';
+    }
+  }, 1000);
+}
+$('btnSendCode').addEventListener('click', async () => {
+  hideErr('errOtp'); hideOk('okOtp');
+  const email = $('inEmail').value.trim().toLowerCase();
+  if (email.length < 5 || !email.includes('@') || !email.split('@').pop().includes('.')) {
+    showErr('errOtp', 'Sahi Gmail likhein — code usi par jayega.');
+    return;
+  }
+  const btn = $('btnSendCode');
+  setBusy(btn, true);
+  let ok = false;
+  try { ok = await sendEmailOtp(email); } catch (e) { ok = false; }
+  setBusy(btn, false);
+  if (!ok) {
+    showErr('errOtp', 'Code nahi bheja ja saka — Gmail dobara check karke phir koshish karein.');
+    return;
+  }
+  otpSent = true; otpAttempts = 0; otpBlocked = false;
+  $('otpArea').classList.remove('hidden');
+  showOk('okOtp', 'Code aap ke Gmail par bhej diya gaya hai — Gmail khol kar 6 numberon wala code yahan likhein.');
+  startCooldown();
+});
+$('btnVerify').addEventListener('click', async () => {
+  hideErr('errOtp'); hideOk('okOtp');
+  if (otpBlocked) {
+    showErr('errOtp', 'Ye code band ho gaya hai — pehle naya code mangwayein.');
+    return;
+  }
+  const email = $('inEmail').value.trim().toLowerCase();
+  const code = $('inCode').value.trim();
+  if (code.length !== 6) {
+    showErr('errOtp', 'Poora 6 numberon wala code likhein.');
+    return;
+  }
+  const btn = $('btnVerify');
+  setBusy(btn, true);
+  let ok = false;
+  try { ok = await verifyEmailOtp(email, code); } catch (e) { ok = false; }
+  setBusy(btn, false);
+  if (!ok) {
+    otpAttempts += 1;
+    if (otpAttempts >= 5) {
+      otpBlocked = true;
+      showErr('errOtp', 'Bohat zyada ghalat koshishen — ye code band ho gaya hai. Naya code mangwayein.');
+    } else {
+      showErr('errOtp', 'Code ghalat hai — Gmail wala sab se naya code likhein.');
+    }
+    return;
+  }
+  await afterVerified(pendingAgent, email);
+});
+$('btnBack').addEventListener('click', () => {
+  pendingAgent = null;
+  clearInterval(cooldownTimer);
+  showScreen('scr-login');
+});
+
+// Verify kamyab — dono raston (code / password) ka mushtarka darwaza.
+async function afterVerified(agent, email) {
+  if (!agent) { showScreen('scr-login'); return; }
+  // Password raste wali sakhti (app se): record ki email kisi aur ki
+  // ho to ye dakhla is ID ka nahi.
+  if (agent.email && agent.email !== email) {
+    clearSession();
+    showScreen('scr-login');
+    showErr('errLogin', 'Ye Gmail is ID ki nahi hai — wohi Gmail istemal karein jo Master ke record mein hai, ya Master se rabta karein.');
+    return;
+  }
+  await linkAgent(agent.id); // best-effort, app ki tarah
+  try { localStorage.setItem(LS_CODE, agent.code); } catch (e) {}
+  currentAgent = agent;
+  await renderProfile();
+}
+
+// --- Password se login
+$('btnPwLogin').addEventListener('click', async () => {
+  hideErr('errPwLogin');
+  const email = $('inPwEmail').value.trim().toLowerCase();
+  const pw = $('inPwPass').value;
+  if (!email.includes('@') || !pw) {
+    showErr('errPwLogin', 'Apna Gmail aur password likhein.');
+    return;
+  }
+  const btn = $('btnPwLogin');
+  setBusy(btn, true);
+  let ok = false;
+  try { ok = await signInWithPassword(email, pw); } catch (e) { ok = false; }
+  if (!ok) {
+    setBusy(btn, false);
+    showErr('errPwLogin', 'Login nahi ho saka — Gmail ya password ghalat hai. Password pehli dafa Gmail code se login karke lagta hai.');
+    return;
+  }
+  try {
+    const a = await findAgentByEmail(email);
+    if (!a) {
+      clearSession();
+      setBusy(btn, false);
+      showErr('errPwLogin', 'Is Gmail par koi agent ID nahi mili — Master se rabta karein.');
+      return;
+    }
+    if (a.archived) {
+      clearSession();
+      setBusy(btn, false);
+      showErr('errPwLogin', 'Ye ID mojood nahi hai — Master se rabta karein.');
+      return;
+    }
+    // App ki shart: link_agent true jawab de, warna session saaf.
+    const linked = await linkAgent(a.id);
+    if (!linked) {
+      clearSession();
+      setBusy(btn, false);
+      showErr('errPwLogin', 'Ye Gmail is ID ki nahi hai — Master se rabta karein.');
+      return;
+    }
+    try {
+      localStorage.setItem(LS_CODE, a.code);
+      localStorage.setItem('boz_agent_pw_set_' + a.code, '1');
+    } catch (e) {}
+    currentAgent = a;
+    setBusy(btn, false);
+    await renderProfile();
+  } catch (e) {
+    setBusy(btn, false);
+    showErr('errPwLogin', 'Server se rabta nahi ho saka — dobara koshish karein.');
+  }
+});
+
+// --- Profile
+async function renderProfile() {
+  showScreen('scr-profile');
+  // Taaza record (session wale Bearer se) — Master ne haalat badli
+  // ho (band/archive) to wohi asal hai.
+  if (currentAgent && currentAgent.code) {
+    try {
+      const fresh = await fetchAgentByCode(currentAgent.code);
+      if (fresh) currentAgent = fresh;
+    } catch (e) {}
+  }
+  const a = currentAgent;
+  if (!a) { showScreen('scr-login'); return; }
+  if (a.archived) {
+    clearSession();
+    showScreen('scr-login');
+    showErr('errLogin', 'Ye ID mojood nahi hai — Master se rabta karein.');
+    return;
+  }
+  // link_agent ki khamosh retry (app har data load par karti hai)
+  if (session && (!a.email || a.email === session.email)) { linkAgent(a.id); }
+
+  $('pfAvatar').textContent = a.name ? a.name.charAt(0).toUpperCase() : '?';
+  $('pfName').textContent = a.name || '—';
+  $('pfCode').textContent = a.code;
+  $('pfStatus').innerHTML = a.active
+    ? '<span class="badge active">ACTIVE</span>'
+    : '<span class="badge band">BAND</span>';
+  $('pfCity').textContent = a.city || '—';
+  $('pfMobile').textContent = a.mobile || '—';
+  $('pfEmail').textContent = a.email || (session ? session.email : '—');
+  $('bandBar').style.display = a.active ? 'none' : 'block';
+
+  // Do link — alag label ke saath
+  $('myPageUrl').textContent = myPageUrl(a.code);
+  $('drvLinkUrl').textContent = driverLinkFor(a.code);
+
+  // Password card ki haalat
+  let pwSet = false;
+  try { pwSet = localStorage.getItem('boz_agent_pw_set_' + a.code) === '1'; } catch (e) {}
+  $('pwForm').classList.toggle('hidden', pwSet);
+  $('pwDone').classList.toggle('hidden', !pwSet);
+  $('btnSkipPw').style.display = pwSet ? 'none' : '';
+  $('pwTitle').textContent = pwSet ? 'Password Badlein' : 'Apna Password Lagayein';
+
+  // Drivers — sirf ACTIVE agent ka data (band par bilkul nahi)
+  if (!a.active) {
+    $('driversCard').classList.add('hidden');
+    return;
+  }
+  $('driversCard').classList.remove('hidden');
+  $('drvList').innerHTML = '<p class="note">Load ho raha hai…</p>';
+  try {
+    const drivers = await fetchAgentDrivers(a.code);
+    let totalRides = 0;
+    drivers.forEach(d => { totalRides += d.rides; });
+    $('stDrivers').textContent = drivers.length;
+    $('stRides').textContent = totalRides;
+    if (!drivers.length) {
+      $('drvList').innerHTML = '<p class="note">Abhi tak aap ka koi driver nahi — upar wala <b>Drivers Ko Bhejne Wala Link</b> bhej kar driver shamil karein.</p>';
+      return;
+    }
+    $('drvList').innerHTML = drivers.map(d => {
+      const meta = [d.vehicle, d.plate].filter(x => x).join(' · ');
+      const status = d.active
+        ? '<span class="st-ok">✓ ID Active hai</span>'
+        : 'CNIC: ' + docLabel(d.cnicStatus) + ' · Gaari: ' + docLabel(d.gaariStatus) + ' · Licence: ' + docLabel(d.licenceStatus);
+      return '<div class="drv">'
+        + '<div class="dn">' + (d.active ? '✓ ' : '⏳ ') + esc(d.name || 'Naam nahi') + '</div>'
+        + (meta ? '<div class="dm">' + esc(meta) + '</div>' : '')
+        + '<div class="ds">' + status + '</div>'
+        + '<div class="dm">Mukammal rides: ' + d.rides + '</div>'
+        + '</div>';
+    }).join('');
+  } catch (e) {
+    $('drvList').innerHTML = '<p class="note">Drivers ki list abhi load nahi ho saki — thodi dair baad page dobara kholein.</p>';
+  }
+}
+
+// --- Password lagana / badalna
+$('btnSetPw').addEventListener('click', async () => {
+  hideErr('errPwSet'); hideOk('okPwSet');
+  const p1 = $('inNewPw').value;
+  const p2 = $('inNewPw2').value;
+  if (p1.length < 6) { showErr('errPwSet', 'Password kam az kam 6 haroof ka rakhein.'); return; }
+  if (p1 !== p2) { showErr('errPwSet', 'Dono password ek jaise nahi hain — dobara likhein.'); return; }
+  const btn = $('btnSetPw');
+  setBusy(btn, true);
+  let ok = false;
+  try { ok = await updateAuthPassword(p1); } catch (e) { ok = false; }
+  setBusy(btn, false);
+  if (!ok) { showErr('errPwSet', 'Password nahi lag saka — dobara koshish karein.'); return; }
+  if (currentAgent) {
+    try { localStorage.setItem('boz_agent_pw_set_' + currentAgent.code, '1'); } catch (e) {}
+  }
+  $('inNewPw').value = ''; $('inNewPw2').value = '';
+  $('pwForm').classList.add('hidden');
+  $('pwDone').classList.remove('hidden');
+  showOk('okPwSet', 'Password lag gaya ✓ — agli dafa sirf password se login ho jayega.');
+  $('pwCard').appendChild($('okPwSet'));
+});
+$('btnSkipPw').addEventListener('click', () => {
+  // Is dafa ke liye band — nishan nahi lagta, is liye agle taza
+  // dakhlay par peshkash phir ayegi (app wala usool).
+  $('pwCard').classList.add('hidden');
+});
+$('btnChangePw').addEventListener('click', () => {
+  $('pwForm').classList.remove('hidden');
+  $('pwDone').classList.add('hidden');
+  $('btnSkipPw').style.display = 'none';
+  $('pwTitle').textContent = 'Password Badlein';
+});
+
+// --- Copy buttons + WhatsApp
+document.querySelectorAll('[data-copy]').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const text = $(btn.dataset.copy).textContent.trim();
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; }
+    catch (e) {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta);
+      ta.select();
+      try { ok = document.execCommand('copy'); } catch (e2) {}
+      ta.remove();
+    }
+    if (ok) { showOk('okCopy', 'Link copy ho gaya ✓'); setTimeout(() => hideOk('okCopy'), 2500); }
+  });
+});
+$('btnWaShare').addEventListener('click', () => {
+  if (!currentAgent) return;
+  const link = driverLinkFor(currentAgent.code);
+  const text = 'Assalam-o-Alaikum! Boz Safar mein driver banne ke liye is link se app download karein aur register karein — mera agent code (' + currentAgent.code + ') khud bhara milega: ' + link;
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+});
+
+// --- Logout
+$('btnLogout').addEventListener('click', () => {
+  clearSession();
+  pendingAgent = null;
+  showScreen('scr-login');
+});
+
+// --- Shuruaat: session ho to seedha profile, warna login
+(async function init() {
+  try {
+    const qs = new URLSearchParams(location.search);
+    urlCode = normCode(qs.get('code') || '');
+  } catch (e) { urlCode = ''; }
+
+  const saved = loadSession();
+  if (saved && saved.access_token) {
+    session = saved;
+    const alive = await ensureSession();
+    if (alive) {
+      let code = '';
+      try { code = localStorage.getItem(LS_CODE) || urlCode; } catch (e) { code = urlCode; }
+      if (code) {
+        try {
+          const a = await fetchAgentByCode(code);
+          if (a && !a.archived) {
+            currentAgent = a;
+            await renderProfile();
+            return;
+          }
+        } catch (e) {}
+      }
+    }
+    clearSession();
+  }
+
+  // ?code= wala link ho to bata dein ye page kis ke liye hai
+  if (urlCode) {
+    try {
+      const a = await fetchAgentByCode(urlCode);
+      if (a && !a.archived) {
+        const hint = $('linkHint');
+        hint.textContent = 'Ye page agent ' + (a.name || '') + ' (' + a.code + ') ke liye hai — apna mobile number likh kar login karein.';
+        hint.style.display = 'block';
+        if (a.mobile) $('inMobile').value = a.mobile;
+      } else if (a && a.archived) {
+        const hint = $('linkHint');
+        hint.textContent = 'Ye ID mojood nahi hai — Master se rabta karein.';
+        hint.style.display = 'block';
+      }
+    } catch (e) {}
+  }
+  showScreen('scr-login');
+})();
+</script>
+</body>
+</html>
