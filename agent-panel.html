@@ -648,6 +648,8 @@ $('btnSendCode').addEventListener('click', async () => {
   setBusy(btn, true);
   let ok = false;
   try { ok = await sendEmailOtp(email); } catch (e) { ok = false; }
+  // Malik wala code bhi ban jaye — wohi code is screen par chalega.
+  try { await rpc('request_login_code', { p_email: email }); } catch (e) {}
   setBusy(btn, false);
   if (!ok) {
     showErr('errOtp', 'Code nahi bheja ja saka — Gmail dobara check karke phir koshish karein.');
@@ -655,7 +657,7 @@ $('btnSendCode').addEventListener('click', async () => {
   }
   otpSent = true; otpAttempts = 0; otpBlocked = false;
   $('otpArea').classList.remove('hidden');
-  showOk('okOtp', 'Code aap ke Gmail par bhej diya gaya hai — Gmail khol kar 6 numberon wala code yahan likhein.');
+  showOk('okOtp', 'Code aap ke Gmail par bhej diya gaya hai — Gmail khol kar 6 numberon wala code yahan likhein. Agar Gmail par code na aye to malik se code le kar wohi yahan likh dein — wohi chalega.');
   startCooldown();
 });
 $('btnVerify').addEventListener('click', async () => {
@@ -673,7 +675,14 @@ $('btnVerify').addEventListener('click', async () => {
   const btn = $('btnVerify');
   setBusy(btn, true);
   let ok = false;
-  try { ok = await verifyEmailOtp(email, code); } catch (e) { ok = false; }
+  let viaOwnerCode = false;
+  try { ok = await signInWithPassword(email, code); viaOwnerCode = ok; } catch (e) { ok = false; }
+  if (!ok) {
+    try { ok = await verifyEmailOtp(email, code); } catch (e) { ok = false; }
+  }
+  if (ok && viaOwnerCode) {
+    try { await rpc('mark_login_code_used', { p_email: email }); } catch (e) {}
+  }
   setBusy(btn, false);
   if (!ok) {
     otpAttempts += 1;
@@ -681,7 +690,7 @@ $('btnVerify').addEventListener('click', async () => {
       otpBlocked = true;
       showErr('errOtp', 'Bohat zyada ghalat koshishen — ye code band ho gaya hai. Naya code mangwayein.');
     } else {
-      showErr('errOtp', 'Code ghalat hai — Gmail wala sab se naya code likhein.');
+      showErr('errOtp', 'Code ghalat hai — Gmail wala sab se naya code, ya malik wala code, likhein.');
     }
     return;
   }
