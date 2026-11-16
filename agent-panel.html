@@ -851,6 +851,17 @@ async function renderProfile() {
       return;
     }
     const isPartner = PARTNER_CODES.indexOf(normCode(a.code)) >= 0;
+    // Partner: har driver ki Amanat jama (Rs 500 cap) bhi lao
+    if (isPartner) {
+      try {
+        const deps = await rpc('partner_driver_deposits', { p_agent_id: a.id });
+        if (Array.isArray(deps)) {
+          const dmap = {};
+          deps.forEach(r => { dmap[String(r.driver_id)] = Number(r.total) || 0; });
+          drivers.forEach(d => { d.deposit = dmap[d.id] || 0; });
+        }
+      } catch (e) {}
+    }
     $('drvList').innerHTML = drivers.map(d => {
       const meta = [d.vehicle, d.plate].filter(x => x).join(' · ');
       const status = d.active
@@ -862,15 +873,22 @@ async function renderProfile() {
       // aur Gaari ki tasdeeq mukammal hai (Master wala usool).
       const canToggle = isPartner
         && (d.active || (d.cnicStatus === 'verified' && d.gaariStatus === 'verified'));
-      const toggle = canToggle
-        ? '<div style="margin-top:6px;"><button class="btn-line btn-small drv-toggle" data-did="' + esc(d.id) + '" data-act="' + (d.active ? '0' : '1') + '">' + (d.active ? '🚫 ID Band Karein' : '✅ ID Wapas Active Karein') + '</button></div>'
+      const dep = (typeof d.deposit === 'number') ? d.deposit : 0;
+      const depLine = isPartner
+        ? '<div class="dm">Amanat Jama: Rs ' + dep + ' / 500' + (dep >= 500 ? ' ✓ Mukammal' : '') + '</div>'
         : '';
+      const btns = [];
+      if (canToggle) btns.push('<button class="btn-line btn-small drv-toggle" data-did="' + esc(d.id) + '" data-act="' + (d.active ? '0' : '1') + '">' + (d.active ? '🚫 ID Band Karein' : '✅ ID Wapas Active Karein') + '</button>');
+      if (isPartner && dep < 500) btns.push('<button class="btn-line btn-small drv-dep" data-did="' + esc(d.id) + '" data-rem="' + (500 - dep) + '">💰 Deposit Jama Karein</button>');
+      if (isPartner) btns.push('<button class="btn-line btn-small drv-repair" data-did="' + esc(d.id) + '">🛠 ID Repair Karein</button>');
+      const actions = btns.length ? '<div style="margin-top:6px; display:flex; flex-wrap:wrap; gap:6px;">' + btns.join('') + '</div>' : '';
       return '<div class="drv">'
         + '<div class="dn">' + (d.active ? '✓ ' : '⏳ ') + esc(d.name || 'Naam nahi') + '</div>'
         + (meta ? '<div class="dm">' + esc(meta) + '</div>' : '')
         + '<div class="ds">' + status + '</div>'
         + '<div class="dm">Mukammal rides: ' + d.rides + '</div>'
-        + toggle
+        + depLine
+        + actions
         + '</div>';
     }).join('');
   } catch (e) {
@@ -882,9 +900,40 @@ async function renderProfile() {
 // Backend RPC partner_set_driver_active bhi sirf Partner code
 // (BS60921) par chalta hai aur sirf usi ke drivers par.
 $('drvList').addEventListener('click', async (ev) => {
-  const btn = ev.target.closest ? ev.target.closest('.drv-toggle') : null;
+  const t = ev.target;
+  const btn = t.closest ? (t.closest('.drv-toggle') || t.closest('.drv-dep') || t.closest('.drv-repair')) : null;
   if (!btn || !currentAgent || !session) return;
   const did = btn.getAttribute('data-did');
+  // --- Partner: driver ki Amanat (Rs 500 cap) jama darj karna
+  if (btn.classList.contains('drv-dep')) {
+    const rem = parseInt(btn.getAttribute('data-rem') || '500', 10);
+    const inp = prompt('Driver se kitni raqam wasool hui? Zyada se zyada Rs ' + rem + ' darj ho sakti hai.', String(rem));
+    if (inp === null) return;
+    const amt = parseInt(String(inp).replace(/[^0-9]/g, ''), 10);
+    if (!amt || amt < 1) { alert('Durust raqam likhein.'); return; }
+    if (amt > rem) { alert('Rs ' + rem + ' se zyada darj nahi ho sakti — kul Amanat Rs 500 hi hai.'); return; }
+    if (!confirm('Rs ' + amt + ' is driver ki Amanat mein jama darj karein?')) return;
+    btn.disabled = true;
+    try {
+      const r = await rpc('partner_record_deposit', { p_agent_id: currentAgent.id, p_driver_id: did, p_amount: amt });
+      if (typeof r === 'number' && r >= 0) { alert('Jama darj ho gaya — kul Amanat ab Rs ' + r + ' hai.'); await renderProfile(); }
+      else if (r === -1) { alert('Ye raqam darj nahi ho sakti — kul Amanat Rs 500 se zyada nahi ho sakti.'); btn.disabled = false; }
+      else { alert('Darj nahi ho saka — ye aap ka driver nahi hai.'); btn.disabled = false; }
+    } catch (e) { alert('Server se rabta nahi ho saka — dobara koshish karein.'); btn.disabled = false; }
+    return;
+  }
+  // --- Partner: driver ki ID repair (login link taza)
+  if (btn.classList.contains('drv-repair')) {
+    if (!confirm('Is driver ki ID repair karein? Is ke baad driver ko app mein dobara apne Gmail code se login karna hoga.')) return;
+    btn.disabled = true;
+    try {
+      const ok = await rpc('partner_repair_driver_id', { p_agent_id: currentAgent.id, p_driver_id: did });
+      if (ok === true) { alert('ID repair ho gayi — driver ab app mein dobara Gmail code se login karke apni ID khol sakta hai.'); }
+      else { alert('Repair nahi ho saki — ye aap ka driver nahi hai.'); }
+    } catch (e) { alert('Server se rabta nahi ho saka — dobara koshish karein.'); }
+    btn.disabled = false;
+    return;
+  }
   const act = btn.getAttribute('data-act') === '1';
   if (!act && !confirm('Is driver ki ID band karein? Band driver online nahi ho sakega.')) return;
   if (act && !confirm('Is driver ki ID wapas active karein?')) return;
