@@ -850,22 +850,51 @@ async function renderProfile() {
       $('drvList').innerHTML = '<p class="note">Abhi tak aap ka koi driver nahi — upar wala <b>Drivers Ko Bhejne Wala Link</b> bhej kar driver shamil karein.</p>';
       return;
     }
+    const isPartner = PARTNER_CODES.indexOf(normCode(a.code)) >= 0;
     $('drvList').innerHTML = drivers.map(d => {
       const meta = [d.vehicle, d.plate].filter(x => x).join(' · ');
       const status = d.active
         ? '<span class="st-ok">✓ ID Active hai</span>'
         : 'CNIC: ' + docLabel(d.cnicStatus) + ' · Gaari: ' + docLabel(d.gaariStatus) + ' · Licence: ' + docLabel(d.licenceStatus);
+      // v2026-11-16: SIRF Partner ko apne driver ki ID band / wapas
+      // active karne ka button (backend RPC bhi sirf Partner code
+      // par chalta hai). Wapas Active sirf us driver ka jis ke CNIC
+      // aur Gaari ki tasdeeq mukammal hai (Master wala usool).
+      const canToggle = isPartner
+        && (d.active || (d.cnicStatus === 'verified' && d.gaariStatus === 'verified'));
+      const toggle = canToggle
+        ? '<div style="margin-top:6px;"><button class="btn-line btn-small drv-toggle" data-did="' + esc(d.id) + '" data-act="' + (d.active ? '0' : '1') + '">' + (d.active ? '🚫 ID Band Karein' : '✅ ID Wapas Active Karein') + '</button></div>'
+        : '';
       return '<div class="drv">'
         + '<div class="dn">' + (d.active ? '✓ ' : '⏳ ') + esc(d.name || 'Naam nahi') + '</div>'
         + (meta ? '<div class="dm">' + esc(meta) + '</div>' : '')
         + '<div class="ds">' + status + '</div>'
         + '<div class="dm">Mukammal rides: ' + d.rides + '</div>'
+        + toggle
         + '</div>';
     }).join('');
   } catch (e) {
     $('drvList').innerHTML = '<p class="note">Drivers ki list abhi load nahi ho saki — thodi dair baad page dobara kholein.</p>';
   }
 }
+
+// --- Partner: apne driver ki ID band / wapas active (sirf Partner)
+// Backend RPC partner_set_driver_active bhi sirf Partner code
+// (BS60921) par chalta hai aur sirf usi ke drivers par.
+$('drvList').addEventListener('click', async (ev) => {
+  const btn = ev.target.closest ? ev.target.closest('.drv-toggle') : null;
+  if (!btn || !currentAgent || !session) return;
+  const did = btn.getAttribute('data-did');
+  const act = btn.getAttribute('data-act') === '1';
+  if (!act && !confirm('Is driver ki ID band karein? Band driver online nahi ho sakega.')) return;
+  if (act && !confirm('Is driver ki ID wapas active karein?')) return;
+  btn.disabled = true;
+  try {
+    const ok = await rpc('partner_set_driver_active', { p_agent_id: currentAgent.id, p_driver_id: did, p_active: act });
+    if (ok === true) { await renderProfile(); }
+    else { alert('Ye tabdeeli nahi ho saki — ye aap ka driver nahi hai, ya us ki tasdeeq mukammal nahi.'); btn.disabled = false; }
+  } catch (e) { alert('Server se rabta nahi ho saka — dobara koshish karein.'); btn.disabled = false; }
+});
 
 // --- Password lagana / badalna
 $('btnSetPw').addEventListener('click', async () => {
