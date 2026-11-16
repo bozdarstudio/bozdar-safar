@@ -459,7 +459,9 @@ async function fetchAgents() {
 async function fetchAgentByCode(code) {
   const c = normCode(code);
   if (!c) return null;
-  const data = await restGet('/agents?select=*&code=eq.' + encodeURIComponent(c));
+  // v2026-11-16 FIX: agents table par anon REST parhai band hai
+  // (42501) — pehchan ab SECURITY DEFINER RPC se hoti hai.
+  const data = await rpc('agent_lookup_by_code', { p_code: c });
   if (!Array.isArray(data) || !data.length) return null;
   return agentFromRow(data[0]);
 }
@@ -474,14 +476,16 @@ function pickAgent(matches) {
 async function findAgentByMobile(mobile) {
   const m = normMobile(mobile);
   if (m.length < 10) return null;
-  const all = await fetchAgents();
-  return pickAgent(all.filter(a => normMobile(a.mobile) === m));
+  const data = await rpc('agent_lookup_by_mobile', { p_mobile: String(mobile || '') });
+  if (!Array.isArray(data) || !data.length) return null;
+  return pickAgent(data.map(agentFromRow));
 }
 async function findAgentByEmail(email) {
   const e = String(email || '').trim().toLowerCase();
   if (!e) return null;
-  const all = await fetchAgents();
-  return pickAgent(all.filter(a => a.email === e));
+  const data = await rpc('agent_lookup_by_email', { p_email: e });
+  if (!Array.isArray(data) || !data.length) return null;
+  return pickAgent(data.map(agentFromRow));
 }
 
 // --- link_agent RPC (Backend.linkAgentIdentity) — session lazmi
