@@ -52,10 +52,10 @@
   <div class="card">
     <div class="brand">BOZDAR&nbsp;SAFAR</div>
     <h1>Driver Registration</h1>
-    <p class="tag">Aap ko ek Partner ne Bozdar Safar mein driver banne ki dawat di hai.</p>
+    <p class="tag" id="inviteTag">Aap ko ek agent ne Bozdar Safar mein driver banne ki dawat di hai.</p>
 
     <div class="missing" id="nocode">
-      Is link mein agent code nahi mila. Apne Partner se sahi link dobara mangayein —
+      Is link mein agent code nahi mila. Apne <span id="nocodeWho">agent</span> se sahi link dobara mangayein —
       baghair code ke registration par refer nahi lage ga.
     </div>
 
@@ -84,7 +84,7 @@
          Master ki tasdeeq ke baad aap ki ID active ho jayegi.
     </div>
 
-    <footer>Bozdar Safar — Pakistan ka apna safar · <span id="ftAgentPart" style="display:none">Partner Contact Number: <span id="ftAgentNum"></span> · </span>Malik Contact Number: 0332 9467211</footer>
+    <footer>Bozdar Safar — Pakistan ka apna safar · <span id="ftAgentPart" style="display:none"><span id="ftRoleLabel">Agent</span> Contact Number: <span id="ftAgentNum"></span> · </span>Malik Contact Number: 0332 9467211</footer>
   </div>
 
 <script>
@@ -99,7 +99,7 @@
       // Footer mein is agent ka apna number bhi — malik ke number ke saath
       // (owner ka hukm 2026-11-16: do number chalenge)
       try {
-        fetch('https://ndcnqotfqpgkgsngewug.supabase.co/rest/v1/agents?select=mobile&code=eq.' + encodeURIComponent(code), {
+        fetch('https://ndcnqotfqpgkgsngewug.supabase.co/rest/v1/agents?select=mobile,code&code=eq.' + encodeURIComponent(code), {
           headers: {
             apikey: 'sb_publishable_3TWtf4zT6xJzuyb0fsMuWQ_Fjkyk3LE',
             Authorization: 'Bearer sb_publishable_3TWtf4zT6xJzuyb0fsMuWQ_Fjkyk3LE'
@@ -108,6 +108,12 @@
           if (rows && rows[0] && rows[0].mobile) {
             document.getElementById('ftAgentNum').textContent = rows[0].mobile;
             document.getElementById('ftAgentPart').style.display = '';
+            // Sirf Dilshad Chandio (BS60921) "Partner" hai — baqi sab "Agent"
+            if ((rows[0].code || '').toUpperCase() === 'BS60921') {
+              document.getElementById('ftRoleLabel').textContent = 'Partner';
+              document.getElementById('inviteTag').textContent = 'Aap ko ek Partner ne Bozdar Safar mein driver banne ki dawat di hai.';
+              document.getElementById('nocodeWho').textContent = 'Partner';
+            }
           }
         }).catch(function () {});
       } catch (e) {}
