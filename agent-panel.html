@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boz Safar — Agent Page</title>
+<title>Boz Safar — Partner Page</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -140,7 +140,7 @@
 <body>
 <header>
   <div class="logo"><span class="boz">Boz</span> <span class="safar">Safar</span></div>
-  <div class="tag">Agent Page — Apni ID, Apna Record</div>
+  <div class="tag">Partner Page — Apni ID, Apna Record</div>
 </header>
 <main>
 
@@ -153,8 +153,8 @@
   <div id="scr-login" class="hidden">
     <div id="linkHint" class="hintbar"></div>
     <div class="card">
-      <h2>Agent Login</h2>
-      <p class="note">Apna wohi mobile number likhein jo Master ke record mein darj hai — aap ki agent ID khul jayegi.</p>
+      <h2>Partner Login</h2>
+      <p class="note">Apna wohi mobile number likhein jo Master ke record mein darj hai — aap ki Partner ID khul jayegi.</p>
       <label for="inMobile">Mobile Number</label>
       <input id="inMobile" type="tel" inputmode="numeric" placeholder="03xx xxxxxxx" autocomplete="tel">
       <div id="errLogin" class="err"></div>
@@ -276,7 +276,7 @@
   </div>
 
 </main>
-<footer>Boz Safar — Pakistan ka apna safar · Rabta: <span id="ftAgentPart" style="display:none">Agent <span id="ftAgentNum"></span> · </span>Malik 0332 9467211</footer>
+<footer>Boz Safar — Pakistan ka apna safar · <span id="ftAgentPart" style="display:none">Partner Contact Number: <span id="ftAgentNum"></span> · </span>Malik Contact Number: 0332 9467211</footer>
 
 <script>
 'use strict';
@@ -586,7 +586,7 @@ $('btnFind').addEventListener('click', async () => {
     const a = await findAgentByMobile(mobile);
     setBusy(btn, false);
     if (!a) {
-      showErr('errLogin', 'Is number par koi agent ID nahi mili — number dobara check karein, ya Master se rabta karein.');
+      showErr('errLogin', 'Is number par koi Partner ID nahi mili — number dobara check karein, ya Master se rabta karein.');
       return;
     }
     if (a.archived) {
@@ -594,7 +594,7 @@ $('btnFind').addEventListener('click', async () => {
       return;
     }
     if (urlCode && normCode(urlCode) !== normCode(a.code)) {
-      showErr('errLogin', 'Ye link kisi aur agent ka hai — apna wala link istemal karein jo Master ne aap ko bheja tha.');
+      showErr('errLogin', 'Ye link kisi aur Partner ka hai — apna wala link istemal karein jo Master ne aap ko bheja tha.');
       return;
     }
     pendingAgent = a;
@@ -728,7 +728,7 @@ $('btnPwLogin').addEventListener('click', async () => {
     if (!a) {
       clearSession();
       setBusy(btn, false);
-      showErr('errPwLogin', 'Is Gmail par koi agent ID nahi mili — Master se rabta karein.');
+      showErr('errPwLogin', 'Is Gmail par koi Partner ID nahi mili — Master se rabta karein.');
       return;
     }
     if (a.archived) {
@@ -947,7 +947,7 @@ $('btnLogout').addEventListener('click', () => {
       if (a && !a.archived) {
         setFooterAgent(a.mobile);
         const hint = $('linkHint');
-        hint.textContent = 'Ye page agent ' + (a.name || '') + ' (' + a.code + ') ke liye hai — apna mobile number likh kar login karein.';
+        hint.textContent = 'Ye page Partner ' + (a.name || '') + ' (' + a.code + ') ke liye hai — apna mobile number likh kar login karein.';
         hint.style.display = 'block';
         if (a.mobile) $('inMobile').value = a.mobile;
       } else if (a && a.archived) {
