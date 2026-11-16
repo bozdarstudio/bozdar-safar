@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boz Safar — Partner Page</title>
+<title>Boz Safar — Agent Page</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -140,7 +140,7 @@
 <body>
 <header>
   <div class="logo"><span class="boz">Boz</span> <span class="safar">Safar</span></div>
-  <div class="tag">Partner Page — Apni ID, Apna Record</div>
+  <div class="tag" id="tagLine">Agent Page — Apni ID, Apna Record</div>
 </header>
 <main>
 
@@ -153,8 +153,8 @@
   <div id="scr-login" class="hidden">
     <div id="linkHint" class="hintbar"></div>
     <div class="card">
-      <h2>Partner Login</h2>
-      <p class="note">Apna wohi mobile number likhein jo Master ke record mein darj hai — aap ki Partner ID khul jayegi.</p>
+      <h2 id="loginTitle">Agent Login</h2>
+      <p class="note" id="loginNote">Apna wohi mobile number likhein jo Master ke record mein darj hai — aap ki agent ID khul jayegi.</p>
       <label for="inMobile">Mobile Number</label>
       <input id="inMobile" type="tel" inputmode="numeric" placeholder="03xx xxxxxxx" autocomplete="tel">
       <div id="errLogin" class="err"></div>
@@ -276,7 +276,7 @@
   </div>
 
 </main>
-<footer>Boz Safar — Pakistan ka apna safar · <span id="ftAgentPart" style="display:none">Partner Contact Number: <span id="ftAgentNum"></span> · </span>Malik Contact Number: 0332 9467211</footer>
+<footer>Boz Safar — Pakistan ka apna safar · <span id="ftAgentPart" style="display:none"><span id="ftRoleLabel">Agent</span> Contact Number: <span id="ftAgentNum"></span> · </span>Malik Contact Number: 0332 9467211</footer>
 
 <script>
 'use strict';
@@ -586,7 +586,7 @@ $('btnFind').addEventListener('click', async () => {
     const a = await findAgentByMobile(mobile);
     setBusy(btn, false);
     if (!a) {
-      showErr('errLogin', 'Is number par koi Partner ID nahi mili — number dobara check karein, ya Master se rabta karein.');
+      showErr('errLogin', 'Is number par koi ' + roleWord + ' ID nahi mili — number dobara check karein, ya Master se rabta karein.');
       return;
     }
     if (a.archived) {
@@ -594,10 +594,11 @@ $('btnFind').addEventListener('click', async () => {
       return;
     }
     if (urlCode && normCode(urlCode) !== normCode(a.code)) {
-      showErr('errLogin', 'Ye link kisi aur Partner ka hai — apna wala link istemal karein jo Master ne aap ko bheja tha.');
+      showErr('errLogin', 'Ye link kisi aur ' + roleWord + ' ka hai — apna wala link istemal karein jo Master ne aap ko bheja tha.');
       return;
     }
     pendingAgent = a;
+    applyRole(a);
     $('cfAvatar').textContent = a.name ? a.name.charAt(0).toUpperCase() : '?';
     $('cfName').textContent = a.name || '—';
     $('cfCode').textContent = a.code;
@@ -728,7 +729,7 @@ $('btnPwLogin').addEventListener('click', async () => {
     if (!a) {
       clearSession();
       setBusy(btn, false);
-      showErr('errPwLogin', 'Is Gmail par koi Partner ID nahi mili — Master se rabta karein.');
+      showErr('errPwLogin', 'Is Gmail par koi ' + roleWord + ' ID nahi mili — Master se rabta karein.');
       return;
     }
     if (a.archived) {
@@ -758,6 +759,19 @@ $('btnPwLogin').addEventListener('click', async () => {
   }
 });
 
+// Sirf Dilshad Chandio (BS60921) "Partner" hai — baqi sab "Agent"
+// (owner ka hukm 2026-11-16: Partner sirf Chandio ke liye)
+const PARTNER_CODES = ['BS60921'];
+let roleWord = 'Agent';
+function applyRole(a) {
+  roleWord = (a && PARTNER_CODES.indexOf(normCode(a.code || '')) >= 0) ? 'Partner' : 'Agent';
+  document.title = 'Boz Safar — ' + roleWord + ' Page';
+  const tag = $('tagLine'); if (tag) tag.textContent = roleWord + ' Page — Apni ID, Apna Record';
+  const lt = $('loginTitle'); if (lt) lt.textContent = roleWord + ' Login';
+  const ln = $('loginNote'); if (ln) ln.textContent = 'Apna wohi mobile number likhein jo Master ke record mein darj hai — aap ki ' + roleWord + ' ID khul jayegi.';
+  const fr = $('ftRoleLabel'); if (fr) fr.textContent = roleWord;
+}
+
 // Footer mein agent ka apna number — malik ke number ke saath
 // (owner ka hukm 2026-11-16: har agent ke page par do number chalenge)
 function setFooterAgent(mobile) {
@@ -781,6 +795,7 @@ async function renderProfile() {
   }
   const a = currentAgent;
   if (!a) { showScreen('scr-login'); return; }
+  applyRole(a);
   if (a.archived) {
     clearSession();
     showScreen('scr-login');
@@ -945,9 +960,10 @@ $('btnLogout').addEventListener('click', () => {
     try {
       const a = await fetchAgentByCode(urlCode);
       if (a && !a.archived) {
+        applyRole(a);
         setFooterAgent(a.mobile);
         const hint = $('linkHint');
-        hint.textContent = 'Ye page Partner ' + (a.name || '') + ' (' + a.code + ') ke liye hai — apna mobile number likh kar login karein.';
+        hint.textContent = 'Ye page ' + roleWord + ' ' + (a.name || '') + ' (' + a.code + ') ke liye hai — apna mobile number likh kar login karein.';
         hint.style.display = 'block';
         if (a.mobile) $('inMobile').value = a.mobile;
       } else if (a && a.archived) {
