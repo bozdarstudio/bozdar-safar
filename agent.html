@@ -99,11 +99,14 @@
       // Footer mein is agent ka apna number bhi — malik ke number ke saath
       // (owner ka hukm 2026-11-16: do number chalenge)
       try {
-        fetch('https://ndcnqotfqpgkgsngewug.supabase.co/rest/v1/agents?select=mobile,code&code=eq.' + encodeURIComponent(code), {
+        fetch('https://ndcnqotfqpgkgsngewug.supabase.co/rest/v1/rpc/agent_lookup_by_code', {
+          method: 'POST',
           headers: {
             apikey: 'sb_publishable_3TWtf4zT6xJzuyb0fsMuWQ_Fjkyk3LE',
-            Authorization: 'Bearer sb_publishable_3TWtf4zT6xJzuyb0fsMuWQ_Fjkyk3LE'
-          }
+            Authorization: 'Bearer sb_publishable_3TWtf4zT6xJzuyb0fsMuWQ_Fjkyk3LE',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ p_code: code })
         }).then(function (r) { return r.json(); }).then(function (rows) {
           if (rows && rows[0] && rows[0].mobile) {
             document.getElementById('ftAgentNum').textContent = rows[0].mobile;
