@@ -276,7 +276,7 @@
   </div>
 
 </main>
-<footer>Boz Safar — Pakistan ka apna safar · Madad: 0332 9467211</footer>
+<footer>Boz Safar — Pakistan ka apna safar · Rabta: <span id="ftAgentPart" style="display:none">Agent <span id="ftAgentNum"></span> · </span>Malik 0332 9467211</footer>
 
 <script>
 'use strict';
@@ -758,6 +758,16 @@ $('btnPwLogin').addEventListener('click', async () => {
   }
 });
 
+// Footer mein agent ka apna number — malik ke number ke saath
+// (owner ka hukm 2026-11-16: har agent ke page par do number chalenge)
+function setFooterAgent(mobile) {
+  const m = (mobile || '').trim();
+  const part = $('ftAgentPart');
+  if (!part) return;
+  if (m) { $('ftAgentNum').textContent = m; part.style.display = ''; }
+  else { part.style.display = 'none'; }
+}
+
 // --- Profile
 async function renderProfile() {
   showScreen('scr-profile');
@@ -790,6 +800,7 @@ async function renderProfile() {
   $('pfMobile').textContent = a.mobile || '—';
   $('pfEmail').textContent = a.email || (session ? session.email : '—');
   $('bandBar').style.display = a.active ? 'none' : 'block';
+  setFooterAgent(a.mobile);
 
   // Do link — alag label ke saath
   $('myPageUrl').textContent = myPageUrl(a.code);
@@ -934,6 +945,7 @@ $('btnLogout').addEventListener('click', () => {
     try {
       const a = await fetchAgentByCode(urlCode);
       if (a && !a.archived) {
+        setFooterAgent(a.mobile);
         const hint = $('linkHint');
         hint.textContent = 'Ye page agent ' + (a.name || '') + ' (' + a.code + ') ke liye hai — apna mobile number likh kar login karein.';
         hint.style.display = 'block';
