@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Boz Safar — Agent Link</title>
+<title>Bozdar Safar — Agent Link</title>
 <style>
   :root{
     --green:#0B6B4F; --deep:#0B3D2E; --gold:#D4A017; --gold-light:#F2C94C;
@@ -50,9 +50,9 @@
 </head>
 <body>
   <div class="card">
-    <div class="brand">BOZ&nbsp;SAFAR</div>
+    <div class="brand">BOZDAR&nbsp;SAFAR</div>
     <h1>Driver Registration</h1>
-    <p class="tag">Aap ko ek agent ne Boz Safar mein driver banne ki dawat di hai.</p>
+    <p class="tag">Aap ko ek agent ne Bozdar Safar mein driver banne ki dawat di hai.</p>
 
     <div class="missing" id="nocode">
       Is link mein agent code nahi mila. Apne agent se sahi link dobara mangayein —
@@ -69,7 +69,7 @@
     </p>
 
     <a class="btn btn-download" id="download"
-       href="https://github.com/bozdarstudio/bozdar-safar/releases/download/v1.0.0/Boz.Safar.apk">
+       href="https://github.com/bozdarstudio/bozdar-safar/releases/download/v1.0.0/BozdarSafar-v1.0.0.apk">
       ⬇️ 1. Safar App Download Karein
     </a>
     <a class="btn btn-register" id="register" href="#">
@@ -84,7 +84,7 @@
          Master ki tasdeeq ke baad aap ki ID active ho jayegi.
     </div>
 
-    <footer>Boz Safar — Pakistan ka apna safar · Madad: 0332 9467211</footer>
+    <footer>Bozdar Safar — Pakistan ka apna safar · Rabta: <span id="ftAgentPart" style="display:none">Agent <span id="ftAgentNum"></span> · </span>Malik 0332 9467211</footer>
   </div>
 
 <script>
@@ -96,6 +96,21 @@
     if (code) {
       codeEl.textContent = code;
       regEl.href = 'bozdarsafar://register?agent=' + encodeURIComponent(code);
+      // Footer mein is agent ka apna number bhi — malik ke number ke saath
+      // (owner ka hukm 2026-11-16: do number chalenge)
+      try {
+        fetch('https://ndcnqotfqpgkgsngewug.supabase.co/rest/v1/agents?select=mobile&code=eq.' + encodeURIComponent(code), {
+          headers: {
+            apikey: 'sb_publishable_3TWtf4zT6xJzuyb0fsMuWQ_Fjkyk3LE',
+            Authorization: 'Bearer sb_publishable_3TWtf4zT6xJzuyb0fsMuWQ_Fjkyk3LE'
+          }
+        }).then(function (r) { return r.json(); }).then(function (rows) {
+          if (rows && rows[0] && rows[0].mobile) {
+            document.getElementById('ftAgentNum').textContent = rows[0].mobile;
+            document.getElementById('ftAgentPart').style.display = '';
+          }
+        }).catch(function () {});
+      } catch (e) {}
     } else {
       document.getElementById('nocode').style.display = 'block';
       regEl.href = 'bozdarsafar://register';
