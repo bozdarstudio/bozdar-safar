@@ -1,0 +1,84 @@
+name: Build Split Apps (Passenger / Driver)
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: 'Which split app to build'
+        required: true
+        type: choice
+        options:
+          - passenger
+          - driver
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      UNSIGNED_CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack selected project
+        run: unzip -o "${{ inputs.app }}-project.zip" -d . && rm -f "${{ inputs.app }}-project.zip"
+      - name: Decode release keystore
+        run: |
+          echo "${{ secrets.SAFAR_KEYSTORE_B64 }}" | tr -d '[:space:]' | base64 -d > $RUNNER_TEMP/release.jks
+          echo "KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> $GITHUB_ENV
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: 'stable'
+          cache: false
+      - name: Build release APK + AAB
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.SAFAR_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.SAFAR_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.SAFAR_KEY_PASSWORD }}
+        run: |
+          flutter build apk --release
+          flutter build appbundle --release
+      - name: Verify native libs STORED
+        run: |
+          python3 - <<'PYEOF'
+          import zipfile, sys
+          apk = 'build/app/outputs/flutter-apk/app-release.apk'
+          z = zipfile.ZipFile(apk)
+          sos = [i for i in z.infolist()
+                 if i.filename.startswith('lib/') and i.filename.endswith('.so')]
+          bad = [i.filename for i in sos if i.compress_type != 0]
+          print(f'native .so entries: {len(sos)}')
+          for name in bad:
+              print(f'NOT STORED (compress_type != 0): {name}')
+          if not sos:
+              print('FAIL: no native .so entries found in APK')
+              sys.exit(1)
+          if bad:
+              print('FAIL: native libs must be STORED (legacy packaging)')
+              sys.exit(1)
+          print('OK: all native libs STORED')
+          PYEOF
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BozdarSafar-${{ inputs.app }}-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BozdarSafar-${{ inputs.app }}-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+      - name: Upload APK to release split-check
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ inputs.app }}" = "passenger" ]; then NAME="Boz.Safar.Passenger"; else NAME="Boz.Safar.Driver"; fi
+          cp build/app/outputs/flutter-apk/app-release.apk "$NAME-v1.4.62.apk"
+          cp "$NAME-v1.4.62.apk" "$NAME.apk"
+          gh release upload split-check "$NAME-v1.4.62.apk" --clobber
+          gh release upload split-check "$NAME.apk" --clobber
