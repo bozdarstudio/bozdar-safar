@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Boz Safar — Agent Page</title>
+<title>Boz Safar</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -158,7 +158,7 @@
 <body>
 <header>
   <div class="logo"><span class="boz">Boz</span> <span class="safar">Safar</span></div>
-  <div class="tag" id="tagLine">Agent Page — Apni ID, Apna Record</div>
+  <div class="tag" id="tagLine">Apni ID, Apna Record</div>
 </header>
 <main>
 
@@ -171,7 +171,7 @@
   <div id="scr-login" class="hidden">
     <div id="linkHint" class="hintbar"></div>
     <div class="card">
-      <h2 id="loginTitle">Agent Login</h2>
+      <h2 id="loginTitle">Login</h2>
       <p class="note" id="loginNote">Apna wohi mobile number likhein jo Master ke record mein darj hai — aap ki agent ID khul jayegi.</p>
       <label for="inMobile">Mobile Number</label>
       <input id="inMobile" type="tel" inputmode="numeric" placeholder="03xx xxxxxxx" autocomplete="tel">
@@ -1220,6 +1220,7 @@ $('btnLogout').addEventListener('click', () => {
   try {
     const qs = new URLSearchParams(location.search);
     urlCode = normCode(qs.get('code') || '');
+    if (urlCode && PARTNER_CODES.indexOf(urlCode) >= 0) { try { applyRole({ code: urlCode }); } catch (e) {} }
   } catch (e) { urlCode = ''; }
 
   const saved = loadSession();
