@@ -24,8 +24,8 @@ jobs:
         run: |
           echo "${{ secrets.SAFAR_KEYSTORE_B64 }}" | tr -d '[:space:]' | base64 -d > $RUNNER_TEMP/release.jks
           echo "KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> $GITHUB_ENV
-      - uses: actions/setup-java@v4
-        with:
+      - uses: actions/setup-java@v4  
+          with:
           distribution: 'temurin'
           java-version: '17'
       - uses: subosito/flutter-action@v2
@@ -34,12 +34,14 @@ jobs:
           channel: 'stable'
           cache: false
       - name: Debug workspace
-      run: |
+        run: |
             pwd
             ls -la
             ls -la lib/
             stat lib/main.dart || true
-    - name: Build release APK + AAB
+            - name: Build release APK + AAB
+                
+                                  
         env:
           KEYSTORE_PASSWORD: ${{ secrets.SAFAR_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.SAFAR_KEY_ALIAS }}
