@@ -33,7 +33,13 @@ jobs:
           flutter-version: '3.24.5'
           channel: 'stable'
           cache: false
-      - name: Build release APK + AAB
+      - name: Debug workspace
+      run: |
+            pwd
+            ls -la
+            ls -la lib/
+            stat lib/main.dart || true
+    - name: Build release APK + AAB
         env:
           KEYSTORE_PASSWORD: ${{ secrets.SAFAR_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.SAFAR_KEY_ALIAS }}
