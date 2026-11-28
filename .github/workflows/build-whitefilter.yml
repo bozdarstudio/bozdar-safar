@@ -1,0 +1,46 @@
+name: Build White Filter
+
+# Place this file at .github/workflows/build-whitefilter.yml in the repo.
+# The Android project arrives as white-filter-src.zip in the repo root;
+# this workflow unzips it and builds the debug APK.
+# Manual run only (workflow_dispatch).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle 8.7
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: "8.7"
+
+      - name: Unzip project
+        run: unzip -o white-filter-src.zip -d wf-src
+
+      - name: Build debug APK
+        working-directory: wf-src/android
+        run: gradle assembleDebug --stacktrace
+
+      - name: Upload APK to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp wf-src/android/app/build/outputs/apk/debug/app-debug.apk WhiteFilter.apk
+          gh release view whitefilter >/dev/null 2>&1 || \
+            gh release create whitefilter --title "White Filter" --notes "White Filter app (debug build)"
+          gh release upload whitefilter WhiteFilter.apk --clobber
